@@ -1,0 +1,4 @@
+PyHamcrest
+nose
+pep8
+mock
