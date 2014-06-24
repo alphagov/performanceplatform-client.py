@@ -98,7 +98,7 @@ def _gzip_payload(headers, data):
         from io import BytesIO
         zipped_data = BytesIO()
         with gzip.GzipFile(filename='', mode='wb', fileobj=zipped_data) as f:
-            f.write(data)
+            f.write(data.encode())
         zipped_data.seek(0)
 
         return headers, zipped_data

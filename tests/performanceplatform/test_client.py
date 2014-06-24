@@ -83,9 +83,9 @@ class TestDataSet(object):
 
         # Does it look like a gzipped stream of bytes?
         # http://tools.ietf.org/html/rfc1952#page-5
-        eq_(b'\x1f', gzipped_bytes[0])
-        eq_(b'\x8b', gzipped_bytes[1])
-        eq_(b'\x08', gzipped_bytes[2])
+        eq_(b'\x1f'[0], gzipped_bytes[0])
+        eq_(b'\x8b'[0], gzipped_bytes[1])
+        eq_(b'\x08'[0], gzipped_bytes[2])
 
     @mock.patch('requests.post')
     def test_raises_error_on_4XX_or_5XX_responses(self, mock_post):
