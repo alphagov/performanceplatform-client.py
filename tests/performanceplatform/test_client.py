@@ -8,6 +8,7 @@ from performanceplatform.client import DataSet
 
 
 class TestDataSet(object):
+
     def test_from_target(self):
         data_set = DataSet('foo', 'bar')
         eq_(data_set.url, 'foo')
@@ -65,8 +66,7 @@ class TestDataSet(object):
 
         mock_post.assert_called_with(
             url=mock.ANY,
-            headers=
-            {
+            headers={
                 'Content-type': 'application/json',
                 'Authorization': 'Bearer None',
                 'Content-Encoding': 'gzip',
@@ -83,9 +83,9 @@ class TestDataSet(object):
 
         # Does it look like a gzipped stream of bytes?
         # http://tools.ietf.org/html/rfc1952#page-5
-        eq_(b'\x1f', gzipped_bytes[0])
-        eq_(b'\x8b', gzipped_bytes[1])
-        eq_(b'\x08', gzipped_bytes[2])
+        eq_(b'\x1f'[0], gzipped_bytes[0])
+        eq_(b'\x8b'[0], gzipped_bytes[1])
+        eq_(b'\x08'[0], gzipped_bytes[2])
 
     @mock.patch('requests.post')
     def test_raises_error_on_4XX_or_5XX_responses(self, mock_post):
@@ -111,7 +111,7 @@ class TestDataSet(object):
     @mock.patch('requests.post')
     def test_backs_off_on_bad_gateway(self, mock_post, mock_sleep):
         data_set = DataSet(None, None)
-        
+
         good = Response()
         good.status_code = 200
         bad = Response()
@@ -138,7 +138,7 @@ class TestDataSet(object):
 
         # No exception should be raised
         data_set.post([{'key': 'foo'}])
-    
+
     @mock.patch('time.sleep')
     @mock.patch('requests.post')
     def test_does_not_back_off_on_forbidden(self, mock_post, mock_sleep):

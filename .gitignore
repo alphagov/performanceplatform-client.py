@@ -1,1 +1,10 @@
+.DS_Store
+.idea
 *.pyc
+*.egg-info
+dist
+build
+creds/
+out
+venv
+*.egg

@@ -11,6 +11,7 @@ log = logging.getLogger(__name__)
 
 
 class DataSet(object):
+
     """Client for writing to a Performance Platform data-set"""
 
     def __init__(self, url, token, dry_run=False):
@@ -33,7 +34,7 @@ class DataSet(object):
                 url=self.url,
                 headers=headers,
                 data=data)
-            
+
             try:
                 response.raise_for_status()
             except:
@@ -64,8 +65,8 @@ class DataSet(object):
             log.debug('[PP] {}'.format(response.text))
 
 
-
 class JsonEncoder(json.JSONEncoder):
+
     def default(self, obj):
         if isinstance(obj, datetime.datetime):
             if obj.tzinfo is None:
@@ -97,9 +98,9 @@ def _gzip_payload(headers, data):
         from io import BytesIO
         zipped_data = BytesIO()
         with gzip.GzipFile(filename='', mode='wb', fileobj=zipped_data) as f:
-            f.write(data)
+            f.write(data.encode())
         zipped_data.seek(0)
-        
+
         return headers, zipped_data
     return headers, data
 
