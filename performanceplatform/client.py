@@ -19,6 +19,14 @@ class DataSet(object):
         self.token = token
         self.dry_run = dry_run
 
+    @staticmethod
+    def from_config(config):
+        return DataSet(
+            config['url'],
+            config['token'],
+            config['dry_run']
+        )
+
     def post(self, records):
         headers = _make_headers(self.token)
         data = _encode_json(records)

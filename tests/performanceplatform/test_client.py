@@ -15,6 +15,16 @@ class TestDataSet(object):
         eq_(data_set.token, 'bar')
         eq_(data_set.dry_run, False)
 
+    def test_from_config(self):
+        data_set = DataSet.from_config({
+            'url': 'foo',
+            'token': 'bar',
+            'dry_run': True,
+        })
+        eq_(data_set.url, 'foo')
+        eq_(data_set.token, 'bar')
+        eq_(data_set.dry_run, True)
+
     @mock.patch('performanceplatform.client.requests')
     def test_empty_data_set(self, mock_requests):
         data_set = DataSet('some-url', 'some-token')
