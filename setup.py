@@ -18,7 +18,7 @@ def _get_requirements(path):
 if __name__ == '__main__':
     setup(
         name='performanceplatform-client',
-        version=_read('VERSION'),
+        version=_read('VERSION').strip(),
         packages=find_packages(),
         namespace_packages=['performanceplatform'],
 
