@@ -13,7 +13,7 @@ def _get_requirements(path):
     packages = (p for p in packages if not p.startswith('#'))
     packages = (p.strip() for p in packages)
 
-    return packages
+    return list(packages)
 
 if __name__ == '__main__':
     setup(
