@@ -18,7 +18,7 @@ def _get_requirements(path):
 if __name__ == '__main__':
     setup(
         name='performanceplatform-client',
-        version='0.0.1',
+        version=_read('VERSION'),
         packages=find_packages(),
         namespace_packages=['performanceplatform'],
 
@@ -34,7 +34,7 @@ if __name__ == '__main__':
         keywords='api data performance_platform',
 
         install_requires=_get_requirements('requirements.txt'),
-        test_requires=_get_requirements('requirements_for_tests.txt'),
+        tests_require=_get_requirements('requirements_for_tests.txt'),
 
         test_suite='nose.collector',
     )
