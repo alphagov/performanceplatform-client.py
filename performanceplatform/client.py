@@ -27,6 +27,17 @@ class DataSet(object):
             config['dry_run']
         )
 
+    @staticmethod
+    def from_name(config, name, dry_run=False):
+        """
+            doesn't require a token config param
+            as all of our data is currently public
+        """
+        return DataSet(
+            config['api_url'] + '/' + name,
+            dry_run,
+        )
+
     def post(self, records):
         headers = _make_headers(self.token)
         data = _encode_json(records)
