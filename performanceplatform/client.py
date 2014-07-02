@@ -45,6 +45,26 @@ class DataSet(object):
             dry_run,
         )
 
+    def get(self):
+        headers = _make_headers()
+        if self.dry_run:
+            _log_request('GET', self.url, headers)
+        else:
+            get = requests.get
+
+            response = get(
+                url=self.url,
+                headers=headers
+            )
+            try:
+                response.raise_for_status()
+            except:
+                log.error('[PP: {}]\n{}'.format(
+                    self.url, response.text))
+                raise
+
+            log.debug('[PP] {}'.format(response.text))
+
     def post(self, records):
         headers = _make_headers(self.token)
         data = _encode_json(records)
@@ -106,11 +126,15 @@ def _log_request(method, url, headers, body):
         method, url, headers, body))
 
 
-def _make_headers(token):
-    return {
-        'Authorization': 'Bearer {}'.format(token),
-        'Content-type': 'application/json',
-    }
+def _make_headers(token=False):
+    headers = {}
+    if token is not False:
+        headers['Authorization'] = 'Bearer {}'.format(token)
+        headers['Content-type'] = 'application/json'
+    else:
+        headers['Accept'] = 'application/json, text/javascript'
+
+    return headers
 
 
 def _encode_json(data):

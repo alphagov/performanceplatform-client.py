@@ -26,10 +26,20 @@ class TestDataSet(object):
         eq_(data_set.dry_run, True)
 
     def test_from_name(self):
-        data_set = DataSet.from_name({
-            'api_url': 'foo'
-        }, 'woof')
+        data_set = DataSet.from_name(
+            'foo',
+            'woof'
+        )
         eq_(data_set.url, 'foo/woof')
+        eq_(data_set.dry_run, False)
+
+    def test_from_group_and_type(self):
+        data_set = DataSet.from_group_and_type(
+            'base.url.com',
+            'dogs',
+            'hair-length'
+        )
+        eq_(data_set.url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, False)
 
     @mock.patch('performanceplatform.client.requests')
@@ -74,15 +84,34 @@ class TestDataSet(object):
         )
 
     @mock.patch('requests.get')
-    def test_get_data_set(self, mock_get):
-        data_set = DataSet.from_name({
-            'api_url': 'http://dropthebase.com/data'
-        }, 'buff-dataset-i-love-data-set-s')
+    def test_get_data_set_by_name(self, mock_get):
+        data_set = DataSet.from_name(
+            'http://dropthebase.com',
+            'my-buff-data-set'
+        )
 
         data_set.get()
 
         mock_get.assert_called_with(
-            url='http://dropthebase.com/data/buff-dataset-i-love-data-set-s',
+            url='http://dropthebase.com/my-buff-data-set',
+            headers={
+                'Accept': 'application/json, text/javascript'
+            }
+        )
+
+    @mock.patch('requests.get')
+    def test_get_data_set_by_group_and_type(self, mock_get):
+        data_set = DataSet.from_group_and_type(
+            # bit of a gotcha in the /data here
+            'http://dropthebase.com/data',
+            'famous-knights',
+            'dragons-killed'
+        )
+
+        data_set.get()
+
+        mock_get.assert_called_with(
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers={
                 'Accept': 'application/json, text/javascript'
             }
