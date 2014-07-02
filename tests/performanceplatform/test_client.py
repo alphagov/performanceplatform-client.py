@@ -25,6 +25,13 @@ class TestDataSet(object):
         eq_(data_set.token, 'bar')
         eq_(data_set.dry_run, True)
 
+    def test_from_name(self):
+        data_set = DataSet.from_name({
+            'api_url': 'foo'
+        }, 'woof')
+        eq_(data_set.url, 'foo/woof')
+        eq_(data_set.dry_run, False)
+
     @mock.patch('performanceplatform.client.requests')
     def test_empty_data_set(self, mock_requests):
         data_set = DataSet('some-url', 'some-token')
@@ -64,6 +71,21 @@ class TestDataSet(object):
             url=mock.ANY,
             headers=mock.ANY,
             data='{"key": "2012-12-12T00:00:00+00:00"}'
+        )
+
+    @mock.patch('requests.get')
+    def test_get_data_set(self, mock_get):
+        data_set = DataSet.from_name({
+            'api_url': 'http://dropthebase.com/data'
+        }, 'buff-dataset-i-love-data-set-s')
+
+        data_set.get()
+
+        mock_get.assert_called_with(
+            url='http://dropthebase.com/data/buff-dataset-i-love-data-set-s',
+            headers={
+                'Accept': 'application/json, text/javascript'
+            }
         )
 
     @mock.patch('requests.post')
