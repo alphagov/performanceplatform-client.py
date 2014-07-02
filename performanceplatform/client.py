@@ -28,13 +28,13 @@ class DataSet(object):
         )
 
     @staticmethod
-    def from_name(config, name, dry_run=False):
+    def from_name(api_url, name, dry_run=False):
         """
             doesn't require a token config param
             as all of our data is currently public
         """
         return DataSet(
-            config['api_url'] + '/' + name,
+            '/'.join([api_url, name]).rstrip('/'),
             dry_run,
         )
 
