@@ -47,6 +47,13 @@ class DataSet(object):
             dry_run=dry_run,
         )
 
+    def set_token(self, token):
+        if token is None:
+            raise Exception("You must pass a token to add a token")
+
+        self.token = token
+        return self
+
     def get(self):
         headers = _make_headers()
         if self.dry_run:

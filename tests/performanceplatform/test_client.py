@@ -44,6 +44,19 @@ class TestDataSet(object):
         eq_(data_set.url, 'foo/woof')
         eq_(data_set.dry_run, True)
 
+    def test_set_token(self):
+        data_set = DataSet.from_name(
+            'foo',
+            'woof',
+            True
+        )
+
+        eq_(data_set.token, None)
+
+        data_set.set_token("hotflops69")
+
+        eq_(data_set.token, "hotflops69")
+
     def test_from_group_and_type(self):
         data_set = DataSet.from_group_and_type(
             'base.url.com',
