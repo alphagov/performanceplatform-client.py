@@ -14,7 +14,7 @@ class DataSet(object):
 
     """Client for writing to a Performance Platform data-set"""
 
-    def __init__(self, url, token, dry_run=False):
+    def __init__(self, url, token=None, dry_run=False):
         self.url = url
         self.token = token
         self.dry_run = dry_run
@@ -26,6 +26,44 @@ class DataSet(object):
             config['token'],
             config['dry_run']
         )
+
+    @staticmethod
+    def from_name(api_url, name, dry_run=False):
+        """
+            doesn't require a token config param
+            as all of our data is currently public
+        """
+        return DataSet(
+            '/'.join([api_url, name]).rstrip('/'),
+            dry_run=dry_run
+        )
+
+    @staticmethod
+    def from_group_and_type(api_url, data_group, data_type, dry_run=False):
+        return DataSet(
+            '/'.join([api_url, data_group, data_type]).rstrip('/'),
+            dry_run=dry_run,
+        )
+
+    def get(self):
+        headers = _make_headers()
+        if self.dry_run:
+            _log_request('GET', self.url, headers)
+        else:
+            get = requests.get
+
+            response = get(
+                url=self.url,
+                headers=headers
+            )
+            try:
+                response.raise_for_status()
+            except:
+                log.error('[PP: {}]\n{}'.format(
+                    self.url, response.text))
+                raise
+
+            log.debug('[PP] {}'.format(response.text))
 
     def post(self, records):
         headers = _make_headers(self.token)
@@ -88,11 +126,15 @@ def _log_request(method, url, headers, body):
         method, url, headers, body))
 
 
-def _make_headers(token):
-    return {
-        'Authorization': 'Bearer {}'.format(token),
-        'Content-type': 'application/json',
-    }
+def _make_headers(token=False):
+    headers = {}
+    if token is not False:
+        headers['Authorization'] = 'Bearer {}'.format(token)
+        headers['Content-type'] = 'application/json'
+    else:
+        headers['Accept'] = 'application/json, text/javascript'
+
+    return headers
 
 
 def _encode_json(data):

@@ -4,7 +4,7 @@ import mock
 from nose.tools import eq_, assert_raises
 from requests import Response, HTTPError
 
-from performanceplatform.client import DataSet
+from performanceplatform.client import DataSet, _make_headers
 
 
 class TestDataSet(object):
@@ -23,6 +23,42 @@ class TestDataSet(object):
         })
         eq_(data_set.url, 'foo')
         eq_(data_set.token, 'bar')
+        eq_(data_set.dry_run, True)
+
+    def test_from_name(self):
+        data_set = DataSet.from_name(
+            'foo',
+            'woof'
+        )
+        eq_(data_set.url, 'foo/woof')
+        eq_(data_set.dry_run, False)
+
+    def test_from_name_with_dry_run(self):
+        data_set = DataSet.from_name(
+            'foo',
+            'woof',
+            True
+        )
+        eq_(data_set.url, 'foo/woof')
+        eq_(data_set.dry_run, True)
+
+    def test_from_group_and_type(self):
+        data_set = DataSet.from_group_and_type(
+            'base.url.com',
+            'dogs',
+            'hair-length'
+        )
+        eq_(data_set.url, 'base.url.com/dogs/hair-length')
+        eq_(data_set.dry_run, False)
+
+    def test_from_group_and_type_with_dry_run(self):
+        data_set = DataSet.from_group_and_type(
+            'base.url.com',
+            'dogs',
+            'hair-length',
+            True,
+        )
+        eq_(data_set.url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, True)
 
     @mock.patch('performanceplatform.client.requests')
@@ -64,6 +100,40 @@ class TestDataSet(object):
             url=mock.ANY,
             headers=mock.ANY,
             data='{"key": "2012-12-12T00:00:00+00:00"}'
+        )
+
+    @mock.patch('requests.get')
+    def test_get_data_set_by_name(self, mock_get):
+        data_set = DataSet.from_name(
+            'http://dropthebase.com',
+            'my-buff-data-set'
+        )
+
+        data_set.get()
+
+        mock_get.assert_called_with(
+            url='http://dropthebase.com/my-buff-data-set',
+            headers={
+                'Accept': 'application/json, text/javascript'
+            }
+        )
+
+    @mock.patch('requests.get')
+    def test_get_data_set_by_group_and_type(self, mock_get):
+        data_set = DataSet.from_group_and_type(
+            # bit of a gotcha in the /data here
+            'http://dropthebase.com/data',
+            'famous-knights',
+            'dragons-killed'
+        )
+
+        data_set.get()
+
+        mock_get.assert_called_with(
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers={
+                'Accept': 'application/json, text/javascript'
+            }
         )
 
     @mock.patch('requests.post')
@@ -177,3 +247,14 @@ class TestDataSet(object):
 
         assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
         eq_(mock_post.call_count, 5)
+
+
+def test_make_headers_with_empty_bearer_token():
+    headers = _make_headers('')
+    eq_({ 'Authorization': 'Bearer ', 'Content-type': 'application/json' },
+        headers)
+
+
+def test_make_headers_without_bearer_token():
+    headers = _make_headers()
+    eq_( { 'Accept': 'application/json, text/javascript' }, headers)
