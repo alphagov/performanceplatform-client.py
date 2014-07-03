@@ -33,6 +33,15 @@ class TestDataSet(object):
         eq_(data_set.url, 'foo/woof')
         eq_(data_set.dry_run, False)
 
+    def test_from_name_with_dry_run(self):
+        data_set = DataSet.from_name(
+            'foo',
+            'woof',
+            True
+        )
+        eq_(data_set.url, 'foo/woof')
+        eq_(data_set.dry_run, True)
+
     def test_from_group_and_type(self):
         data_set = DataSet.from_group_and_type(
             'base.url.com',
