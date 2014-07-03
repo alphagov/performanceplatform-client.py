@@ -30,7 +30,7 @@
 
 #### *and push it*
 
-![](http://cl.ly/image/3R3i2a1W2l2y/pushwhoosh.jpg)
+![](http://i.imgur.com/ksFT6Jx.jpg)
 
     # Assumes we're still using the same instance as above.
     # Add the correct token for the data-set
