@@ -51,6 +51,17 @@ class TestDataSet(object):
         eq_(data_set.url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, False)
 
+    def test_from_group_and_type_with_dry_run(self):
+        data_set = DataSet.from_group_and_type(
+            'base.url.com',
+            'dogs',
+            'hair-length',
+            True,
+        )
+        eq_(data_set.url, 'base.url.com/dogs/hair-length')
+        eq_(data_set.dry_run, True)
+
+
     @mock.patch('performanceplatform.client.requests')
     def test_empty_data_set(self, mock_requests):
         data_set = DataSet('some-url', 'some-token')
