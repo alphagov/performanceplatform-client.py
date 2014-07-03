@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import mock
+import multiprocessing
 from nose.tools import eq_, assert_raises
 from nose import SkipTest
 from requests import Response, HTTPError
