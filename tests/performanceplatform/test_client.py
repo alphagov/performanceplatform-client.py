@@ -4,7 +4,7 @@ import mock
 from nose.tools import eq_, assert_raises
 from requests import Response, HTTPError
 
-from performanceplatform.client import DataSet
+from performanceplatform.client import DataSet, _make_headers
 
 
 class TestDataSet(object):
@@ -60,7 +60,6 @@ class TestDataSet(object):
         )
         eq_(data_set.url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, True)
-
 
     @mock.patch('performanceplatform.client.requests')
     def test_empty_data_set(self, mock_requests):
@@ -248,3 +247,14 @@ class TestDataSet(object):
 
         assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
         eq_(mock_post.call_count, 5)
+
+
+def test_make_headers_with_empty_bearer_token():
+    headers = _make_headers('')
+    eq_({ 'Authorization': 'Bearer ', 'Content-type': 'application/json' },
+        headers)
+
+
+def test_make_headers_without_bearer_token():
+    headers = _make_headers()
+    eq_( { 'Accept': 'application/json, text/javascript' }, headers)
