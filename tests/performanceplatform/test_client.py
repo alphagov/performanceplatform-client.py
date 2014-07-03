@@ -44,7 +44,7 @@ class TestDataSet(object):
         eq_(data_set.url, 'foo/woof')
         eq_(data_set.dry_run, True)
 
-    def test_add_token(self):
+    def test_set_token(self):
         data_set = DataSet.from_name(
             'foo',
             'woof',
@@ -53,7 +53,7 @@ class TestDataSet(object):
 
         eq_(data_set.token, None)
 
-        data_set.add_token("hotflops69")
+        data_set.set_token("hotflops69")
 
         eq_(data_set.token, "hotflops69")
 

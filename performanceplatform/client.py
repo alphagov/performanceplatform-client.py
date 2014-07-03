@@ -47,7 +47,7 @@ class DataSet(object):
             dry_run=dry_run,
         )
 
-    def add_token(self, token):
+    def set_token(self, token):
         if token is None:
             raise Exception("You must pass a token to add a token")
 
