@@ -39,9 +39,11 @@ class DataSet(object):
         )
 
     @staticmethod
-    def from_group_and_type(api_url, data_group, data_type, dry_run=False):
+    def from_group_and_type(api_url, data_group, data_type, dry_run=False,
+                            token=None):
         return DataSet(
             '/'.join([api_url, data_group, data_type]).rstrip('/'),
+            token,
             dry_run=dry_run,
         )
 
