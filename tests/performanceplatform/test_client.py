@@ -2,6 +2,7 @@ from datetime import datetime
 
 import mock
 from nose.tools import eq_, assert_raises
+from nose import SkipTest
 from requests import Response, HTTPError
 
 from performanceplatform.client import DataSet, _make_headers
@@ -134,6 +135,70 @@ class TestDataSet(object):
             headers={
                 'Accept': 'application/json, text/javascript'
             }
+        )
+
+    @mock.patch('requests.get')
+    def test_get_data_set_by_group_and_type_with_bearer_token(self, mock_get):
+        data_set = DataSet.from_group_and_type(
+            # bit of a gotcha in the /data here
+            'http://dropthebase.com/data',
+            'famous-knights',
+            'dragons-killed',
+            token='token'
+        )
+
+        data_set.get()
+
+        mock_get.assert_called_with(
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers={
+                'Accept': 'application/json, text/javascript'
+            }
+        )
+
+    @mock.patch('requests.post')
+    def test_post_to_data_set_by_group_and_type(self, mock_post):
+        mock_post.__name__ = 'post'
+        data_set = DataSet.from_group_and_type(
+            # bit of a gotcha in the /data here
+            'http://dropthebase.com/data',
+            'famous-knights',
+            'dragons-killed',
+            token='token'
+        )
+
+        data_set.post({'key': datetime(2012, 12, 12)})
+
+        mock_post.assert_called_with(
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers={
+                'Authorization': 'Bearer token',
+                'Content-type': 'application/json',
+            },
+            data='{"key": "2012-12-12T00:00:00+00:00"}'
+        )
+
+    @mock.patch('requests.post')
+    def test_post_to_data_set_by_group_and_type_without_bearer_token(self, mock_post):
+        """ Need to fix the behaviour here """
+        raise SkipTest
+        mock_post.__name__ = 'post'
+        data_set = DataSet.from_group_and_type(
+            # bit of a gotcha in the /data here
+            'http://dropthebase.com/data',
+            'famous-knights',
+            'dragons-killed',
+        )
+
+        data_set.post({'key': datetime(2012, 12, 12)})
+
+        mock_post.assert_called_with(
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers={
+                'Authorization': 'Bearer token',
+                'Content-type': 'application/json',
+            },
+            data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
 
     @mock.patch('requests.post')
