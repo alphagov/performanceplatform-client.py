@@ -35,7 +35,7 @@
     # Assumes we're still using the same instance as above.
     # Add the correct token for the data-set
 
-    my_data_set.add_token('myImp0rt4nT0k3n')
+    my_data_set.set_token('myImp0rt4nT0k3n')
 
     my_data_set.post({'foo': 'bar'})
 
