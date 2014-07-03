@@ -14,7 +14,7 @@ class DataSet(object):
 
     """Client for writing to a Performance Platform data-set"""
 
-    def __init__(self, url, token, dry_run=False):
+    def __init__(self, url, token=None, dry_run=False):
         self.url = url
         self.token = token
         self.dry_run = dry_run
@@ -35,7 +35,7 @@ class DataSet(object):
         """
         return DataSet(
             '/'.join([api_url, name]).rstrip('/'),
-            dry_run
+            dry_run=dry_run
         )
 
     @staticmethod
