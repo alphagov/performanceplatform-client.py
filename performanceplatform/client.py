@@ -67,6 +67,7 @@ class DataSet(object):
             )
             try:
                 response.raise_for_status()
+                return response
             except:
                 log.error('[PP: {}]\n{}'.format(
                     self.url, response.text))
