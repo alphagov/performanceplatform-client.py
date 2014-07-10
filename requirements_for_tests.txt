@@ -1,4 +1,7 @@
-PyHamcrest
+backoff
+mock
 nose
 pep8
-mock
+PyHamcrest
+pytz
+responses
