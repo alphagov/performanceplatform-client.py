@@ -1,10 +1,11 @@
 from datetime import datetime
 
 import mock
-import multiprocessing
+import multiprocessing  # quieten the test worker
 from nose.tools import eq_, assert_raises
 from nose import SkipTest
 from requests import Response, HTTPError
+import responses
 
 from performanceplatform.client import DataSet, _make_headers
 
@@ -117,20 +118,32 @@ class TestDataSet(object):
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
 
-    @mock.patch('requests.get')
-    def test_get_data_set_by_name(self, mock_get):
+    @responses.activate
+    def test_get_data_set_by_name(self):
         data_set = DataSet.from_name(
             'http://dropthebase.com',
             'my-buff-data-set'
         )
 
-        data_set.get()
+        responses.add(
+            responses.GET, 'http://dropthebase.com/my-buff-data-set',
+            body='{"data": [{"name":"my-buff-data-set"}]}', status=200,
+            content_type='application/json'
+        )
 
-        mock_get.assert_called_with(
-            url='http://dropthebase.com/my-buff-data-set',
-            headers={
-                'Accept': 'application/json, text/javascript'
-            }
+        client_response = data_set.get()
+
+        assert(len(responses.calls) == 1)
+        assert(
+            responses.calls[0].request.headers[
+                'Accept'
+            ] == 'application/json, text/javascript'
+        )
+
+        assert(client_response.status_code == 200)
+        assert(client_response.headers == {'Content-Type': 'application/json'})
+        assert(
+            client_response.content == '{"data": [{"name":"my-buff-data-set"}]}'
         )
 
     @mock.patch('requests.get')
@@ -193,7 +206,9 @@ class TestDataSet(object):
         )
 
     @mock.patch('requests.post')
-    def test_post_to_data_set_by_group_and_type_without_bearer_token(self, mock_post):
+    def test_post_to_data_set_by_group_and_type_without_bearer_token(
+        self, mock_post
+    ):
         """ Need to fix the behaviour here """
         raise SkipTest
         mock_post.__name__ = 'post'
@@ -330,10 +345,10 @@ class TestDataSet(object):
 
 def test_make_headers_with_empty_bearer_token():
     headers = _make_headers('')
-    eq_({ 'Authorization': 'Bearer ', 'Content-type': 'application/json' },
+    eq_({'Authorization': 'Bearer ', 'Content-type': 'application/json'},
         headers)
 
 
 def test_make_headers_without_bearer_token():
     headers = _make_headers()
-    eq_( { 'Accept': 'application/json, text/javascript' }, headers)
+    eq_({'Accept': 'application/json, text/javascript'}, headers)
