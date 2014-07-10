@@ -67,13 +67,13 @@ class DataSet(object):
             )
             try:
                 response.raise_for_status()
-                return response
             except:
                 log.error('[PP: {}]\n{}'.format(
                     self.url, response.text))
                 raise
 
             log.debug('[PP] {}'.format(response.text))
+            return response
 
     def post(self, records):
         headers = _make_headers(self.token)
@@ -113,13 +113,13 @@ class DataSet(object):
                 data=data)
             try:
                 response.raise_for_status()
-                return response
             except:
                 log.error('[PP: {}]\n{}'.format(
                     self.url, response.text))
                 raise
 
             log.debug('[PP] {}'.format(response.text))
+            return response
 
 
 class JsonEncoder(json.JSONEncoder):
