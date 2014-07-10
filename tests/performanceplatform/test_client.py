@@ -143,7 +143,7 @@ class TestDataSet(object):
         assert(client_response.status_code == 200)
         assert(client_response.headers == {'Content-Type': 'application/json'})
         assert(
-            client_response.content == '{"data": [{"name":"my-buff-data-set"}]}'
+            client_response.content == b'{"data": [{"name":"my-buff-data-set"}]}'
         )
 
     @mock.patch('requests.get')
