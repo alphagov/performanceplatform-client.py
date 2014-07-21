@@ -1,4 +1,4 @@
-## An API client for the [performance platform](https://www.gov.uk/performance)
+## An API client for the [Performance Platform](https://www.gov.uk/performance)
 
 ### Workflow
 
@@ -18,11 +18,11 @@
 
 ![](http://cl.ly/image/2j3I050z1527/pullwhoosh.png)
 
-    from performanceplatform-client import client.DataSet as data_set
+    from performanceplatform.client import DataSet as data_set
 
     my_data_set = data_set.from_group_and_type(
         'https://www.performance.service.gov.uk/data',
-        'gov-uk-content/',
+        'gov-uk-content',
         'top-urls'
     )
 
@@ -32,12 +32,9 @@
 
 ![](http://i.imgur.com/ksFT6Jx.jpg)
 
-    # Assumes we're still using the same instance as above.
-    # Add the correct token for the data-set
+    # Assumes we're still using the same instance of data_set as above.
+    # Add the correct token for the data set
 
     my_data_set.set_token('myImp0rt4nT0k3n')
 
     my_data_set.post({'foo': 'bar'})
-
-
-
