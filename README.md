@@ -1,4 +1,8 @@
-## An API client for the [Performance Platform](https://www.gov.uk/performance)
+## A Python client for the GOV.UK Performance Platform
+
+This repo contains a pip-installable client library for interacting with the [Performance Platform](https://www.gov.uk/performance).
+
+[![PyPI version](https://badge.fury.io/py/performanceplatform-client.svg)](https://pypi.python.org/pypi/performanceplatform-client)
 
 ### Workflow
 
