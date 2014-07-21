@@ -1,3 +1,4 @@
+import itertools
 import os
 from setuptools import setup, find_packages
 
@@ -8,12 +9,29 @@ def _read(path):
         return f.read()
 
 
+def _recurse_requirements(packages):
+    for item in packages:
+        if item.startswith('-r '):
+            yield list(_get_requirements(item.replace('-r ', '')))
+        else:
+            yield item
+
+
 def _get_requirements(path):
     packages = _read(path).splitlines()
     packages = (p for p in packages if not p.startswith('#'))
     packages = (p.strip() for p in packages)
+    packages = _recurse_requirements(packages)
 
-    return list(packages)
+    flat_packages = []
+
+    for item in packages:
+        if type(item) is list:
+            flat_packages = flat_packages + item
+        else:
+            flat_packages.append(item)
+
+    return list(flat_packages)
 
 if __name__ == '__main__':
     setup(

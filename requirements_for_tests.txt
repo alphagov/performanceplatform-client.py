@@ -1,7 +1,6 @@
-backoff
+-r requirements.txt
 mock
 nose
 pep8
 PyHamcrest
-pytz==2013d
 responses
