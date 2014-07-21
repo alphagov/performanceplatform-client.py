@@ -4,6 +4,7 @@ python:
   - "3.4"
 script: ./run_tests.sh
 after_success:
-  coveralls
+  - pip install coveralls
+  - coveralls
 notifications:
   email: false
