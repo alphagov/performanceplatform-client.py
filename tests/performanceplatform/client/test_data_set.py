@@ -7,7 +7,7 @@ from nose import SkipTest
 from requests import Response, HTTPError
 import responses
 
-from performanceplatform.client import DataSet, _make_headers
+from performanceplatform.client.data_set import DataSet, _make_headers
 
 
 class TestDataSet(object):
@@ -77,7 +77,7 @@ class TestDataSet(object):
         eq_(data_set.url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, True)
 
-    @mock.patch('performanceplatform.client.requests')
+    @mock.patch('performanceplatform.client.data_set.requests')
     def test_empty_data_set(self, mock_requests):
         data_set = DataSet('some-url', 'some-token')
         data_set.empty_data_set()
@@ -271,7 +271,7 @@ class TestDataSet(object):
         assert_raises(HTTPError, data_set.post, {'key': 'foo'})
 
     @mock.patch('requests.post')
-    @mock.patch('performanceplatform.client.log')
+    @mock.patch('performanceplatform.client.data_set.log')
     def test_logs_on_dry_run(self, mock_log, mock_post):
         mock_post.__name__ = 'post'
 
@@ -329,7 +329,7 @@ class TestDataSet(object):
         assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
 
     @mock.patch('time.sleep')
-    @mock.patch('performanceplatform.client.requests.post')
+    @mock.patch('performanceplatform.client.data_set.requests.post')
     def test_fails_after_5_backoffs(self, mock_post, mock_sleep):
         data_set = DataSet(None, None)
 
