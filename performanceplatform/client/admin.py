@@ -1,7 +1,8 @@
-
 import logging
 import requests
 import urllib
+
+import backoff
 
 
 log = logging.getLogger(__name__)
@@ -50,7 +51,7 @@ class AdminAPI(object):
         if self.dry_run:
             log.info('HTTP GET to "{0}"\nheaders: {1}'.format(url, headers))
         else:
-            response = requests.get(url, headers=headers)
+            response = _exponential_backoff(requests.get)(url, headers=headers)
 
             if response.status_code != 404:
                 try:
@@ -64,3 +65,8 @@ class AdminAPI(object):
                 json = response.json()
 
         return json
+
+_exponential_backoff = backoff.on_predicate(
+    backoff.expo,
+    lambda response: response.status_code in [502, 503],
+    max_tries=5)
