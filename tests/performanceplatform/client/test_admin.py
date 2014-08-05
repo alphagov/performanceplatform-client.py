@@ -4,6 +4,7 @@ import multiprocessing
 
 from nose.tools import eq_
 from requests import Response
+from hamcrest import has_entries, match_equality
 
 from performanceplatform.client.admin import AdminAPI
 
@@ -18,10 +19,11 @@ class TestAdminAPI(object):
 
         mock_get.assert_called_with(
             'http://admin.api/data-sets',
-            headers={
+            headers=match_equality(has_entries({
                 'Accept': 'application/json',
-                'Authorization': 'Bearer token'
-            }
+                'Authorization': 'Bearer token',
+                'User-Agent': 'Performance Platform Client',
+            }))
         )
 
     @mock.patch('requests.get')
@@ -32,10 +34,10 @@ class TestAdminAPI(object):
 
         mock_get.assert_called_with(
             'http://admin.api/users/foo%40bar.com',
-            headers={
+            headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
-            }
+            }))
         )
 
     @mock.patch('requests.get')
@@ -46,10 +48,10 @@ class TestAdminAPI(object):
 
         mock_get.assert_called_with(
             'http://admin.api/data-sets?data-group=group&data-type=type',
-            headers={
+            headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
-            }
+            }))
         )
 
     @mock.patch('requests.get')

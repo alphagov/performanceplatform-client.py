@@ -45,7 +45,8 @@ class AdminAPI(object):
         url = '{0}{1}'.format(self.url, path)
         headers = {
             'Authorization': 'Bearer {0}'.format(self.token),
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'User-Agent': 'Performance Platform Client',
         }
 
         if self.dry_run:
