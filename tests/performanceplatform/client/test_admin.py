@@ -4,7 +4,7 @@ import multiprocessing
 
 from nose.tools import eq_
 from requests import Response
-from hamcrest import has_entries, match_equality
+from hamcrest import has_entries, match_equality, starts_with
 
 from performanceplatform.client.admin import AdminAPI
 
@@ -22,7 +22,7 @@ class TestAdminAPI(object):
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token',
-                'User-Agent': 'Performance Platform Client',
+                'User-Agent': starts_with('Performance Platform Client'),
             }))
         )
 
