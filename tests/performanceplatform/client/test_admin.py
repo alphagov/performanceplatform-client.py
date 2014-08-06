@@ -12,6 +12,7 @@ class TestAdminAPI(object):
 
     @mock.patch('requests.get')
     def test_get_has_correct_headers(self, mock_get):
+        mock_get.__name__ = 'get'
         api = AdminAPI('http://admin.api', 'token')
         api.list_data_sets()
 
@@ -25,6 +26,7 @@ class TestAdminAPI(object):
 
     @mock.patch('requests.get')
     def test_get_user(self, mock_get):
+        mock_get.__name__ = 'get'
         api = AdminAPI('http://admin.api', 'token')
         api.get_user('foo@bar.com')
 
@@ -38,6 +40,7 @@ class TestAdminAPI(object):
 
     @mock.patch('requests.get')
     def test_get_data_set(self, mock_get):
+        mock_get.__name__ = 'get'
         api = AdminAPI('http://admin.api', 'token')
         api.get_data_set('group', 'type')
 
@@ -55,6 +58,7 @@ class TestAdminAPI(object):
         response.status_code = 200
         response._content = b'[{"data-type":"type"}]'
         mock_get.return_value = response
+        mock_get.__name__ = 'get'
 
         api = AdminAPI('http://admin.api', 'token')
         data_sets = api.list_data_sets()
@@ -73,6 +77,7 @@ class TestAdminAPI(object):
         response = Response()
         response.status_code = 404
         mock_get.return_value = response
+        mock_get.__name__ = 'get'
 
         api = AdminAPI('http://admin.api', 'token')
         data_sets = api.list_data_sets()
@@ -85,6 +90,7 @@ class TestAdminAPI(object):
         response.status_code = 200
         response._content = b'[{"data-type":"type"}]'
         mock_get.return_value = response
+        mock_get.__name__ = 'get'
 
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'type')
@@ -97,6 +103,7 @@ class TestAdminAPI(object):
         response.status_code = 200
         response._content = b'[]'
         mock_get.return_value = response
+        mock_get.__name__ = 'get'
 
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'type')
@@ -108,8 +115,26 @@ class TestAdminAPI(object):
         response = Response()
         response.status_code = 404
         mock_get.return_value = response
+        mock_get.__name__ = 'get'
 
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'bar')
 
         eq_(data_set, None)
+
+    @mock.patch('time.sleep')
+    @mock.patch('requests.get')
+    def test_backs_off_on_bad_gateway(self, mock_get, mock_sleep):
+        good = Response()
+        good.status_code = 200
+        good._content = "[]"
+        bad = Response()
+        bad.status_code = 502
+
+        mock_get.side_effect = [bad, bad, good]
+        mock_get.__name__ = 'get'
+
+        api = AdminAPI('http://admin.api', 'token')
+        api.list_data_sets()
+
+        eq_(mock_get.call_count, 3)
