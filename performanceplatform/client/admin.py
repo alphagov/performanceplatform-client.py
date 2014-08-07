@@ -3,7 +3,7 @@ import requests
 import urllib
 
 import backoff
-
+import pkg_resources
 
 log = logging.getLogger(__name__)
 
@@ -40,12 +40,18 @@ class AdminAPI(object):
         return self._get(
             '/users/{0}'.format(url_quote(email)))
 
+    def get_version(self):
+        return pkg_resources.\
+            get_distribution('performanceplatform-client').version
+
     def _get(self, path):
         json = None
         url = '{0}{1}'.format(self.url, path)
         headers = {
             'Authorization': 'Bearer {0}'.format(self.token),
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'User-Agent': 'Performance Platform Client {}'.format(
+                self.get_version())
         }
 
         if self.dry_run:
