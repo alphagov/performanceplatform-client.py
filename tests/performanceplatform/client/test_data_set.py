@@ -86,6 +86,7 @@ class TestDataSet(object):
             headers={
                 'Authorization': 'Bearer some-token',
                 'Content-type': 'application/json',
+                'Request-Id': 'Not-Set',
             },
             data='[]')
 
@@ -100,7 +101,8 @@ class TestDataSet(object):
             url='foo',
             headers={
                 'Authorization': 'Bearer bar',
-                'Content-type': 'application/json'
+                'Content-type': 'application/json',
+                'Request-Id': 'Not-Set',
             },
             data='{"key": "value"}'
         )
@@ -160,7 +162,8 @@ class TestDataSet(object):
         mock_get.assert_called_with(
             url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers={
-                'Accept': 'application/json, text/javascript'
+                'Accept': 'application/json, text/javascript',
+                'Request-Id': 'Not-Set',
             }
         )
 
@@ -179,7 +182,8 @@ class TestDataSet(object):
         mock_get.assert_called_with(
             url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers={
-                'Accept': 'application/json, text/javascript'
+                'Accept': 'application/json, text/javascript',
+                'Request-Id': 'Not-Set',
             }
         )
 
@@ -201,6 +205,7 @@ class TestDataSet(object):
             headers={
                 'Authorization': 'Bearer token',
                 'Content-type': 'application/json',
+                'Request-Id': 'Not-Set',
             },
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
@@ -226,6 +231,7 @@ class TestDataSet(object):
             headers={
                 'Authorization': 'Bearer token',
                 'Content-type': 'application/json',
+                'Request-Id': 'Not-Set',
             },
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
@@ -244,6 +250,7 @@ class TestDataSet(object):
                 'Content-type': 'application/json',
                 'Authorization': 'Bearer None',
                 'Content-Encoding': 'gzip',
+                'Request-Id': 'Not-Set',
             },
             data=mock.ANY
         )
@@ -352,3 +359,11 @@ def test_make_headers_with_empty_bearer_token():
 def test_make_headers_without_bearer_token():
     headers = _make_headers()
     eq_({'Accept': 'application/json, text/javascript'}, headers)
+
+
+def test_make_headers_with_request_id_fn():
+    def request_id_fn():
+        return "Ello"
+
+    headers = _make_headers(request_id_fn=request_id_fn)
+    eq_({'Accept': 'application/json, text/javascript', 'Request-Id': 'Ello'}, headers)

@@ -16,10 +16,14 @@ class DataSet(object):
 
     """Client for writing to a Performance Platform data-set"""
 
-    def __init__(self, url, token=None, dry_run=False):
+    def __init__(self, url, token=None, dry_run=False, request_id_fn = None):
         self.url = url
         self.token = token
         self.dry_run = dry_run
+        if request_id_fn:
+            self.request_id_fn = request_id_fn
+        else:
+            self.request_id_fn = lambda: "Not-Set"
 
     @staticmethod
     def from_config(config):
@@ -57,7 +61,7 @@ class DataSet(object):
         return self
 
     def get(self):
-        headers = _make_headers()
+        headers = _make_headers(request_id_fn=self.request_id_fn)
         if self.dry_run:
             _log_request('GET', self.url, headers)
         else:
@@ -78,7 +82,7 @@ class DataSet(object):
             return response
 
     def post(self, records):
-        headers = _make_headers(self.token)
+        headers = _make_headers(self.token, request_id_fn=self.request_id_fn)
         data = _encode_json(records)
 
         if self.dry_run:
@@ -103,7 +107,7 @@ class DataSet(object):
             log.debug('[PP] {}'.format(response.text))
 
     def empty_data_set(self):
-        headers = _make_headers(self.token)
+        headers = _make_headers(self.token, request_id_fn=self.request_id_fn)
         data = _encode_json([])
 
         if self.dry_run:
@@ -139,13 +143,16 @@ def _log_request(method, url, headers, body):
         method, url, headers, body))
 
 
-def _make_headers(token=False):
+def _make_headers(token=False, request_id_fn=None):
     headers = {}
     if token is not False:
         headers['Authorization'] = 'Bearer {}'.format(token)
         headers['Content-type'] = 'application/json'
     else:
         headers['Accept'] = 'application/json, text/javascript'
+
+    if request_id_fn:
+        headers['Request-Id'] = request_id_fn()
 
     return headers
 
