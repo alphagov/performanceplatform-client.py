@@ -15,10 +15,14 @@ except AttributeError:
 
 class AdminAPI(object):
 
-    def __init__(self, url, token, dry_run=False):
+    def __init__(self, url, token, dry_run=False, request_id_fn = None):
         self.url = url
         self.token = token
         self.dry_run = dry_run
+        if request_id_fn:
+            self.request_id_fn = request_id_fn
+        else:
+            self.request_id_fn = lambda: "Not-Set"
 
     def get_data_set(self, data_group, data_type):
         query_result = self._get(
@@ -51,7 +55,8 @@ class AdminAPI(object):
             'Authorization': 'Bearer {0}'.format(self.token),
             'Accept': 'application/json',
             'User-Agent': 'Performance Platform Client {}'.format(
-                self.get_version())
+                self.get_version()),
+            'Request-Id': self.request_id_fn()
         }
 
         if self.dry_run:
