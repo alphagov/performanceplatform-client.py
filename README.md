@@ -5,6 +5,8 @@ This repo contains a pip-installable client library for interacting with the [Pe
 [![PyPI version](https://badge.fury.io/py/performanceplatform-client.svg)](https://pypi.python.org/pypi/performanceplatform-client)
 [![Build status](https://travis-ci.org/alphagov/performanceplatform-client.svg?branch=master)](https://travis-ci.org/alphagov/performanceplatform-client)
 [![Coverage Status](https://coveralls.io/repos/alphagov/performanceplatform-client/badge.png)](https://coveralls.io/r/alphagov/performanceplatform-client)
+[![Code Health](https://landscape.io/github/alphagov/performanceplatform-client/master/landscape.png)](https://landscape.io/github/alphagov/performanceplatform-client/master)
+
 
 ### Workflow
 
