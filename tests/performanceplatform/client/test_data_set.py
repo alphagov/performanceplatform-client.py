@@ -225,36 +225,6 @@ class TestDataSet(object):
         )
 
     @mock.patch('requests.request')
-    def test_post_large_data_is_compressed(self, mock_request):
-        mock_request.__name__ = 'name'
-        data_set = DataSet('', None)
-
-        big_string = "x" * 3000
-        data_set.post({'key': big_string})
-
-        mock_request.assert_called_with(
-            mock.ANY,
-            mock.ANY,
-            headers=match_equality(has_entries({
-                'Content-Encoding': 'gzip',
-            })),
-            data=mock.ANY
-        )
-
-        call_args = mock_request.call_args
-
-        gzipped_bytes = call_args[1]["data"].getvalue()
-
-        # large repeated string compresses really well - who knew?
-        eq_(52, len(gzipped_bytes))
-
-        # Does it look like a gzipped stream of bytes?
-        # http://tools.ietf.org/html/rfc1952#page-5
-        eq_(b'\x1f'[0], gzipped_bytes[0])
-        eq_(b'\x8b'[0], gzipped_bytes[1])
-        eq_(b'\x08'[0], gzipped_bytes[2])
-
-    @mock.patch('requests.request')
     def test_raises_error_on_4XX_or_5XX_responses(self, mock_request):
         mock_request.__name__ = 'request'
         data_set = DataSet('', None)

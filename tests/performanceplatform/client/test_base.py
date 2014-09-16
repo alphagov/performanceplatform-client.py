@@ -75,3 +75,29 @@ class TestBaseClient(object):
         client._get('/foo')
 
         eq_(mock_request.call_count, 3)
+
+    @mock.patch('requests.request')
+    def test_large_payloads_are_compressed(self, mock_request):
+        mock_request.__name__ = 'request'
+
+        client = BaseClient('', 'token')
+        client._post('', 'x' * 3000)
+
+        mock_request.assert_called_with(
+            mock.ANY,
+            mock.ANY,
+            headers=match_equality(has_entries({
+                'Content-Encoding': 'gzip'
+            })),
+            data=mock.ANY
+        )
+
+        gzipped_bytes = mock_request.call_args[1]['data'].getvalue()
+
+        eq_(38, len(gzipped_bytes))
+
+        # Does it look like a gzipped stream of bytes?
+        # http://tools.ietf.org/html/rfc1952#page-5
+        eq_(b'\x1f'[0], gzipped_bytes[0])
+        eq_(b'\x8b'[0], gzipped_bytes[1])
+        eq_(b'\x08'[0], gzipped_bytes[2])
