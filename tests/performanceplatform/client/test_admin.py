@@ -87,7 +87,7 @@ class TestAdminAPI(object):
         eq_(data_set, None)
 
     @mock.patch('requests.request')
-    def test_get_data_set_should_still_return_None(self, mock_request):
+    def test_get_data_set_should_return_None_on_404(self, mock_request):
         response = Response()
         response.status_code = 404
         mock_request.return_value = response
@@ -95,5 +95,17 @@ class TestAdminAPI(object):
 
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'bar')
+
+        eq_(data_set, None)
+
+    @mock.patch('requests.request')
+    def test_get_data_set_by_name_should_return_None_on_404(self, mock_request):
+        response = Response()
+        response.status_code = 404
+        mock_request.return_value = response
+        mock_request.__name__ = 'get'
+
+        api = AdminAPI('http://admin.api', 'token')
+        data_set = api.get_data_set_by_name('foo_bar')
 
         eq_(data_set, None)

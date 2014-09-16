@@ -2,6 +2,7 @@ import requests
 import logging
 import backoff
 import pkg_resources
+from functools import wraps
 
 log = logging.getLogger(__name__)
 
@@ -16,27 +17,43 @@ class BaseClient(object):
         else:
             self._request_id_fn = lambda: 'Not-Set'
 
+    @property
+    def base_url(self):
+        return self._base_url
+
+    @property
+    def token(self):
+        return self._token
+
+    @property
+    def dry_run(self):
+        return self._dry_run
+
     def _get(self, path):
         return self._request('GET', path)
 
     def _post(self, path, data):
         return self._request('POST', path, data)
 
+    def _put(self, path, data):
+        return self._request('PUT', path, data)
+
     def get_version(self):
         return pkg_resources.\
             get_distribution('performanceplatform-client').version
 
     def _request(self, method, path, data=None):
+        json = None
         url = self._base_url + path
         headers = {
-            'Authorization': 'Bearer ' + self._token,
             'Accept': 'application/json',
             'User-Agent': 'Performance Platform Client {}'.format(
                 self.get_version()),
             'Request-Id': self._request_id_fn(),
         }
-        json = None
 
+        if self._token is not None:
+            headers['Authorization'] = 'Bearer ' + self._token
         if data is not None:
             headers['Content-Type'] = 'application/json'
 
@@ -44,21 +61,51 @@ class BaseClient(object):
             log.info('HTTP {} to "{}"\nheaders: {}'.format(
                 method, url, headers))
         else:
+            if data is not None:
+                headers, data = _gzip_payload(headers, data)
             response = _exponential_backoff(requests.request)(
                 method, url, headers=headers, data=data)
 
-            if response.status_code != 404:
-                try:
-                    response.raise_for_status()
-                except:
-                    log.error('[PP-C] {}'.format(response.text))
-                    raise
+            try:
+                response.raise_for_status()
+            except:
+                log.error('[PP-C] {}'.format(response.text))
+                raise
 
-                log.debug('[PP-C] {}'.format(response.text))
+            log.debug('[PP-C] {}'.format(response.text))
 
-                json = response.json()
+            json = response.json()
 
         return json
+
+
+def return_none_on(status_code):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except requests.HTTPError as e:
+                if e.response.status_code == status_code:
+                    return
+                else:
+                    raise
+        return wrapped
+    return decorator
+
+
+def _gzip_payload(headers, data):
+    if len(data) > 2048:
+        headers['Content-Encoding'] = 'gzip'
+        import gzip
+        from io import BytesIO
+        zipped_data = BytesIO()
+        with gzip.GzipFile(filename='', mode='wb', fileobj=zipped_data) as f:
+            f.write(data.encode())
+        zipped_data.seek(0)
+
+        return headers, zipped_data
+    return headers, data
 
 
 _exponential_backoff = backoff.on_predicate(

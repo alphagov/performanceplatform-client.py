@@ -1,7 +1,7 @@
 import logging
 import urllib
 
-from .base import BaseClient
+from .base import BaseClient, return_none_on
 
 
 log = logging.getLogger(__name__)
@@ -15,6 +15,7 @@ except AttributeError:
 
 class AdminAPI(BaseClient):
 
+    @return_none_on(404)
     def get_data_set(self, data_group, data_type):
         query_result = self._get(
             '/data-sets?data-group={0}&data-type={1}'.format(data_group,
@@ -25,6 +26,7 @@ class AdminAPI(BaseClient):
 
         return query_result
 
+    @return_none_on(404)
     def get_data_set_by_name(self, name):
         return self._get('/data-sets/{0}'.format(name))
 

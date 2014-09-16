@@ -52,17 +52,6 @@ class TestBaseClient(object):
             data='bar',
         )
 
-    @mock.patch('requests.request')
-    def test_request_returns_None_on_404(self, mock_request):
-        response = make_response(status_code=404)
-        mock_request.return_value = response
-        mock_request.__name__ = 'request'
-
-        client = BaseClient('http://admin.api', 'token')
-        result = client._get('/foo')
-
-        eq_(result, None)
-
     @mock.patch('time.sleep')
     @mock.patch('requests.request')
     def test_request_backs_off_on_bad_gateway(self, mock_request, mock_sleep):
