@@ -1,6 +1,6 @@
 import mock
 from requests import Response
-from nose.tools import eq_
+from nose.tools import eq_, assert_raises
 from hamcrest import has_entries, match_equality, starts_with
 
 from performanceplatform.client.base import BaseClient
@@ -15,6 +15,16 @@ def make_response(status_code=200, content=''):
 
 
 class TestBaseClient(object):
+    def test_url_must_be_a_string(self):
+        for base_url in [None, 123]:
+            assert_raises(ValueError, BaseClient, base_url, '')
+        BaseClient('', '')
+
+    def test_token_must_be_none_or_string(self):
+        assert_raises(ValueError, BaseClient, '', 123)
+        BaseClient('', None)
+        BaseClient('', '')
+
     @mock.patch('requests.request')
     def test_request_has_correct_headers(self, mock_request):
         mock_request.__name__ = 'request'

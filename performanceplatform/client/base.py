@@ -9,6 +9,12 @@ log = logging.getLogger(__name__)
 
 class BaseClient(object):
     def __init__(self, base_url, token, dry_run=False, request_id_fn=None):
+        if not isinstance(base_url, basestring):
+            raise ValueError("base_url must be a string")
+
+        if not isinstance(token, basestring) and token is not None:
+            raise ValueError("token must be a string or None")
+
         self._base_url = base_url
         self._token = token
         self._dry_run = dry_run
@@ -44,7 +50,7 @@ class BaseClient(object):
 
     def _request(self, method, path, data=None):
         json = None
-        url = self._base_url + path
+        url = self.base_url + path
         headers = {
             'Accept': 'application/json',
             'User-Agent': 'Performance Platform Client {}'.format(
@@ -52,12 +58,12 @@ class BaseClient(object):
             'Request-Id': self._request_id_fn(),
         }
 
-        if self._token is not None:
+        if self.token is not None:
             headers['Authorization'] = 'Bearer ' + self._token
         if data is not None:
             headers['Content-Type'] = 'application/json'
 
-        if self._dry_run:
+        if self.dry_run:
             log.info('HTTP {} to "{}"\nheaders: {}'.format(
                 method, url, headers))
         else:

@@ -46,11 +46,10 @@ class DataSet(BaseClient):
         )
 
     def set_token(self, token):
-        if token is None:
-            raise Exception("You must pass a token to add a token")
+        if not isinstance(token, basestring):
+            raise Exception("token must be a string")
 
         self._token = token
-        return self
 
     def get(self):
         return self._get('')
