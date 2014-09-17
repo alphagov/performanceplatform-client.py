@@ -93,7 +93,7 @@ def return_none_on(status_code):
                 return func(*args, **kwargs)
             except requests.HTTPError as e:
                 if e.response.status_code == status_code:
-                    return
+                    return None
                 else:
                     raise
         return wrapped
