@@ -1,5 +1,6 @@
 import logging
 import urllib
+import json
 
 from .base import BaseClient, return_none_on
 
@@ -36,3 +37,23 @@ class AdminAPI(BaseClient):
     def get_user(self, email):
         return self._get(
             '/users/{0}'.format(url_quote(email)))
+
+    def create_dashboard(self, data):
+        return self._post('/dashboard', json.dumps(data))
+
+    def update_dashboard(self, dashboard_id, data):
+        return self._put('/dashboard/{}'.format(dashboard_id),
+                         json.dumps(data))
+
+    def list_modules_on_dashboard(self, dashboard_id):
+        return self._get('/dashboard/{}/modules'.format(dashboard_id))
+
+    def add_module_to_dashboard(self, dashboard_id, data):
+        return self._post('/dashboard/{}/modules'.format(dashboard_id),
+                          json.dumps(data))
+
+    def list_module_types(self):
+        return self._get('/module-type')
+
+    def add_module_type(self, data):
+        return self._post('/module-type', json.dumps(data))
