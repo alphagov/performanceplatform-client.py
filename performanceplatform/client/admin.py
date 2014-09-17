@@ -46,10 +46,10 @@ class AdminAPI(BaseClient):
                          json.dumps(data))
 
     def list_modules_on_dashboard(self, dashboard_id):
-        return self._get('/dashboard/{}/modules'.format(dashboard_id))
+        return self._get('/dashboard/{}/module'.format(dashboard_id))
 
     def add_module_to_dashboard(self, dashboard_id, data):
-        return self._post('/dashboard/{}/modules'.format(dashboard_id),
+        return self._post('/dashboard/{}/module'.format(dashboard_id),
                           json.dumps(data))
 
     def list_module_types(self):
