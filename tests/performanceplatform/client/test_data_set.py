@@ -5,16 +5,16 @@ import multiprocessing  # quieten the test worker
 from nose.tools import eq_, assert_raises
 from nose import SkipTest
 from requests import Response, HTTPError
-import responses
+from hamcrest import has_entries, match_equality
 
-from performanceplatform.client.data_set import DataSet, _make_headers
+from performanceplatform.client.data_set import DataSet
 
 
 class TestDataSet(object):
 
     def test_from_target(self):
         data_set = DataSet('foo', 'bar')
-        eq_(data_set.url, 'foo')
+        eq_(data_set.base_url, 'foo')
         eq_(data_set.token, 'bar')
         eq_(data_set.dry_run, False)
 
@@ -24,7 +24,7 @@ class TestDataSet(object):
             'token': 'bar',
             'dry_run': True,
         })
-        eq_(data_set.url, 'foo')
+        eq_(data_set.base_url, 'foo')
         eq_(data_set.token, 'bar')
         eq_(data_set.dry_run, True)
 
@@ -33,7 +33,7 @@ class TestDataSet(object):
             'foo',
             'woof'
         )
-        eq_(data_set.url, 'foo/woof')
+        eq_(data_set.base_url, 'foo/woof')
         eq_(data_set.dry_run, False)
 
     def test_from_name_with_dry_run(self):
@@ -42,7 +42,7 @@ class TestDataSet(object):
             'woof',
             True
         )
-        eq_(data_set.url, 'foo/woof')
+        eq_(data_set.base_url, 'foo/woof')
         eq_(data_set.dry_run, True)
 
     def test_set_token(self):
@@ -64,7 +64,7 @@ class TestDataSet(object):
             'dogs',
             'hair-length'
         )
-        eq_(data_set.url, 'base.url.com/dogs/hair-length')
+        eq_(data_set.base_url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, False)
 
     def test_from_group_and_type_with_dry_run(self):
@@ -74,82 +74,70 @@ class TestDataSet(object):
             'hair-length',
             True,
         )
-        eq_(data_set.url, 'base.url.com/dogs/hair-length')
+        eq_(data_set.base_url, 'base.url.com/dogs/hair-length')
         eq_(data_set.dry_run, True)
 
-    @mock.patch('performanceplatform.client.data_set.requests')
-    def test_empty_data_set(self, mock_requests):
+    @mock.patch('requests.request')
+    def test_empty_data_set(self, mock_request):
+        mock_request.__name__ = 'request'
         data_set = DataSet('some-url', 'some-token')
         data_set.empty_data_set()
-        mock_requests.put.assert_called_with(
-            url='some-url',
-            headers={
-                'Authorization': 'Bearer some-token',
-                'Content-type': 'application/json',
-                'Request-Id': 'Not-Set',
-            },
+        mock_request.assert_called_with(
+            'PUT',
+            'some-url',
+            headers=mock.ANY,
             data='[]')
 
-    @mock.patch('requests.post')
-    def test_post_data_to_data_set(self, mock_post):
-        mock_post.__name__ = 'post'
+    @mock.patch('requests.request')
+    def test_post_data_to_data_set(self, mock_request):
+        mock_request.__name__ = 'request'
         data_set = DataSet('foo', 'bar')
 
         data_set.post({'key': 'value'})
 
-        mock_post.assert_called_with(
-            url='foo',
-            headers={
-                'Authorization': 'Bearer bar',
-                'Content-type': 'application/json',
-                'Request-Id': 'Not-Set',
-            },
+        mock_request.assert_called_with(
+            'POST',
+            'foo',
+            headers=mock.ANY,
             data='{"key": "value"}'
         )
 
-    @mock.patch('requests.post')
-    def test_post_to_data_set(self, mock_post):
-        mock_post.__name__ = 'post'
-        data_set = DataSet(None, None)
+    @mock.patch('requests.request')
+    def test_post_to_data_set(self, mock_request):
+        mock_request.__name__ = 'request'
+        data_set = DataSet('', None)
 
         data_set.post({'key': datetime(2012, 12, 12)})
 
-        mock_post.assert_called_with(
-            url=mock.ANY,
+        mock_request.assert_called_with(
+            'POST',
+            mock.ANY,
             headers=mock.ANY,
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
 
-    @responses.activate
-    def test_get_data_set_by_name(self):
+    @mock.patch('requests.request')
+    def test_get_data_set_by_name(self, mock_request):
+        mock_request.__name__ = 'request'
         data_set = DataSet.from_name(
             'http://dropthebase.com',
             'my-buff-data-set'
         )
 
-        responses.add(
-            responses.GET, 'http://dropthebase.com/my-buff-data-set',
-            body='{"data": [{"name":"my-buff-data-set"}]}', status=200,
-            content_type='application/json'
+        data_set.get()
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://dropthebase.com/my-buff-data-set',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+            })),
+            data=mock.ANY
         )
 
-        client_response = data_set.get()
-
-        assert(len(responses.calls) == 1)
-        assert(
-            responses.calls[0].request.headers[
-                'Accept'
-            ] == 'application/json, text/javascript'
-        )
-
-        assert(client_response.status_code == 200)
-        assert(client_response.headers == {'Content-Type': 'application/json'})
-        assert(
-            client_response.content == b'{"data": [{"name":"my-buff-data-set"}]}'
-        )
-
-    @mock.patch('requests.get')
-    def test_get_data_set_by_group_and_type(self, mock_get):
+    @mock.patch('requests.request')
+    def test_get_data_set_by_group_and_type(self, mock_request):
+        mock_request.__name__ = 'request'
         data_set = DataSet.from_group_and_type(
             # bit of a gotcha in the /data here
             'http://dropthebase.com/data',
@@ -159,37 +147,36 @@ class TestDataSet(object):
 
         data_set.get()
 
-        mock_get.assert_called_with(
-            url='http://dropthebase.com/data/famous-knights/dragons-killed',
-            headers={
-                'Accept': 'application/json, text/javascript',
-                'Request-Id': 'Not-Set',
-            }
+        mock_request.assert_called_with(
+            'GET',
+            'http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers=mock.ANY,
+            data=mock.ANY,
         )
 
-    @mock.patch('requests.get')
-    def test_get_data_set_by_group_and_type_with_bearer_token(self, mock_get):
+    @mock.patch('requests.request')
+    def test_get_data_set_by_group_and_type_with_bearer_token(self, mock_request):
+        mock_request.__name__ = 'request'
         data_set = DataSet.from_group_and_type(
             # bit of a gotcha in the /data here
             'http://dropthebase.com/data',
             'famous-knights',
             'dragons-killed',
-            token='token'
+            token='token',
         )
 
         data_set.get()
 
-        mock_get.assert_called_with(
-            url='http://dropthebase.com/data/famous-knights/dragons-killed',
-            headers={
-                'Accept': 'application/json, text/javascript',
-                'Request-Id': 'Not-Set',
-            }
+        mock_request.assert_called_with(
+            'GET',
+            'http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers=mock.ANY,
+            data=mock.ANY,
         )
 
-    @mock.patch('requests.post')
-    def test_post_to_data_set_by_group_and_type(self, mock_post):
-        mock_post.__name__ = 'post'
+    @mock.patch('requests.request')
+    def test_post_to_data_set_by_group_and_type(self, mock_request):
+        mock_request.__name__ = 'request'
         data_set = DataSet.from_group_and_type(
             # bit of a gotcha in the /data here
             'http://dropthebase.com/data',
@@ -200,23 +187,24 @@ class TestDataSet(object):
 
         data_set.post({'key': datetime(2012, 12, 12)})
 
-        mock_post.assert_called_with(
-            url='http://dropthebase.com/data/famous-knights/dragons-killed',
-            headers={
+        mock_request.assert_called_with(
+            'POST',
+            'http://dropthebase.com/data/famous-knights/dragons-killed',
+            headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
-                'Content-type': 'application/json',
+                'Content-Type': 'application/json',
                 'Request-Id': 'Not-Set',
-            },
+            })),
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
 
-    @mock.patch('requests.post')
+    @mock.patch('requests.request')
     def test_post_to_data_set_by_group_and_type_without_bearer_token(
-        self, mock_post
+        self, mock_request
     ):
         """ Need to fix the behaviour here """
         raise SkipTest
-        mock_post.__name__ = 'post'
+        mock_request.__name__ = 'request'
         data_set = DataSet.from_group_and_type(
             # bit of a gotcha in the /data here
             'http://dropthebase.com/data',
@@ -226,7 +214,7 @@ class TestDataSet(object):
 
         data_set.post({'key': datetime(2012, 12, 12)})
 
-        mock_post.assert_called_with(
+        mock_request.assert_called_with(
             url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers={
                 'Authorization': 'Bearer token',
@@ -236,134 +224,85 @@ class TestDataSet(object):
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
 
-    @mock.patch('requests.post')
-    def test_post_large_data_is_compressed(self, mock_post):
-        mock_post.__name__ = 'name'
-        data_set = DataSet(None, None)
-
-        big_string = "x" * 3000
-        data_set.post({'key': big_string})
-
-        mock_post.assert_called_with(
-            url=mock.ANY,
-            headers={
-                'Content-type': 'application/json',
-                'Authorization': 'Bearer None',
-                'Content-Encoding': 'gzip',
-                'Request-Id': 'Not-Set',
-            },
-            data=mock.ANY
-        )
-
-        call_args = mock_post.call_args
-
-        gzipped_bytes = call_args[1]["data"].getvalue()
-
-        # large repeated string compresses really well - who knew?
-        eq_(52, len(gzipped_bytes))
-
-        # Does it look like a gzipped stream of bytes?
-        # http://tools.ietf.org/html/rfc1952#page-5
-        eq_(b'\x1f'[0], gzipped_bytes[0])
-        eq_(b'\x8b'[0], gzipped_bytes[1])
-        eq_(b'\x08'[0], gzipped_bytes[2])
-
-    @mock.patch('requests.post')
-    def test_raises_error_on_4XX_or_5XX_responses(self, mock_post):
-        mock_post.__name__ = 'post'
-        data_set = DataSet(None, None)
+    @mock.patch('requests.request')
+    def test_raises_error_on_4XX_or_5XX_responses(self, mock_request):
+        mock_request.__name__ = 'request'
+        data_set = DataSet('', None)
         response = Response()
         response.status_code = 418
-        mock_post.return_value = response
+        mock_request.return_value = response
         assert_raises(HTTPError, data_set.post, {'key': 'foo'})
 
-    @mock.patch('requests.post')
-    @mock.patch('performanceplatform.client.data_set.log')
-    def test_logs_on_dry_run(self, mock_log, mock_post):
-        mock_post.__name__ = 'post'
+    @mock.patch('requests.request')
+    @mock.patch('performanceplatform.client.base.log')
+    def test_logs_on_dry_run(self, mock_log, mock_request):
+        mock_request.__name__ = 'request'
 
-        data_set = DataSet(None, None, dry_run=True)
+        data_set = DataSet('', None, dry_run=True)
         data_set.post({'key': datetime(2012, 12, 12)})
 
         eq_(mock_log.info.call_count, 1)
-        eq_(mock_post.call_count, 0)
+        eq_(mock_request.call_count, 0)
 
     @mock.patch('time.sleep')
-    @mock.patch('requests.post')
-    def test_backs_off_on_bad_gateway(self, mock_post, mock_sleep):
-        data_set = DataSet(None, None)
+    @mock.patch('requests.request')
+    def test_backs_off_on_bad_gateway(self, mock_request, mock_sleep):
+        data_set = DataSet('', None)
 
         good = Response()
         good.status_code = 200
+        good._content = '[]'
         bad = Response()
         bad.status_code = 502
 
-        mock_post.side_effect = [bad, bad, good]
-        mock_post.__name__ = 'post'
+        mock_request.side_effect = [bad, bad, good]
+        mock_request.__name__ = 'request'
 
         # No exception should be raised
         data_set.post([{'key': 'foo'}])
 
     @mock.patch('time.sleep')
-    @mock.patch('requests.post')
-    def test_backs_off_on_service_unavailable(self, mock_post, mock_sleep):
-        data_set = DataSet(None, None)
+    @mock.patch('requests.request')
+    def test_backs_off_on_service_unavailable(self, mock_request, mock_sleep):
+        data_set = DataSet('', None)
 
         good = Response()
         good.status_code = 200
+        good._content = '[]'
         bad = Response()
         bad.status_code = 503
 
-        mock_post.side_effect = [bad, bad, good]
-        mock_post.__name__ = 'post'
+        mock_request.side_effect = [bad, bad, good]
+        mock_request.__name__ = 'request'
 
         # No exception should be raised
         data_set.post([{'key': 'foo'}])
 
     @mock.patch('time.sleep')
-    @mock.patch('requests.post')
-    def test_does_not_back_off_on_forbidden(self, mock_post, mock_sleep):
-        data_set = DataSet(None, None)
+    @mock.patch('requests.request')
+    def test_does_not_back_off_on_forbidden(self, mock_request, mock_sleep):
+        data_set = DataSet('', None)
 
         good = Response()
         good.status_code = 200
         bad = Response()
         bad.status_code = 403
 
-        mock_post.side_effect = [bad]
-        mock_post.__name__ = 'post'
+        mock_request.side_effect = [bad]
+        mock_request.__name__ = 'request'
 
         assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
 
     @mock.patch('time.sleep')
-    @mock.patch('performanceplatform.client.data_set.requests.post')
-    def test_fails_after_5_backoffs(self, mock_post, mock_sleep):
-        data_set = DataSet(None, None)
+    @mock.patch('requests.request')
+    def test_fails_after_5_backoffs(self, mock_request, mock_sleep):
+        data_set = DataSet('', None)
 
         bad = Response()
         bad.status_code = 502
 
-        mock_post.return_value = bad
-        mock_post.__name__ = 'post'
+        mock_request.return_value = bad
+        mock_request.__name__ = 'request'
 
         assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
-        eq_(mock_post.call_count, 5)
-
-
-def test_make_headers_with_empty_bearer_token():
-    headers = _make_headers('')
-    eq_({'Authorization': 'Bearer ', 'Content-type': 'application/json'},
-        headers)
-
-
-def test_make_headers_without_bearer_token():
-    headers = _make_headers()
-    eq_({'Accept': 'application/json, text/javascript'}, headers)
-
-
-def test_make_headers_with_request_id_fn():
-    def request_id_fn():
-        return "Ello"
-
-    headers = _make_headers(request_id_fn=request_id_fn)
-    eq_({'Accept': 'application/json, text/javascript', 'Request-Id': 'Ello'}, headers)
+        eq_(mock_request.call_count, 5)

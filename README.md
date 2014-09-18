@@ -27,15 +27,13 @@ This repo contains a pip-installable client library for interacting with the [Pe
 ![](http://cl.ly/image/2j3I050z1527/pullwhoosh.png)
 
 ```python
-from performanceplatform.client import DataSet as data_set
+from performanceplatform.client import DataSet
 
-my_data_set = data_set.from_group_and_type(
-    'https://www.performance.service.gov.uk/data',
-    'gov-uk-content',
-    'top-urls'
-)
+data_set = DataSet.from_group_and_type(
+  'https://www.performance.service.gov.uk/data',
+  'gov-uk-content', 'top-urls')
 
-response = my_data_set.get()
+response = data_set.get()
 ```
 
 #### *and push it*
@@ -43,10 +41,12 @@ response = my_data_set.get()
 ![](http://i.imgur.com/ksFT6Jx.jpg)
 
 ```python
-# Assumes we're still using the same instance of data_set as above.
-# Add the correct token for the data set
+from performanceplatform.client import DataSet
 
-my_data_set.set_token('myImp0rt4nT0k3n')
+data_set = DataSet.from_group_and_type(
+  'https://www.performance.service.gov.uk/data',
+  'gov-uk-conten', 'top-urls',
+  token='your-secret-token')
 
-my_data_set.post({'foo': 'bar'})
+data_set.post({'foo': 'bar'})
 ```
