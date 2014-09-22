@@ -73,10 +73,9 @@ class TestBaseClient(object):
         client._post('/foo', [1, 2, 3], chunk_size=2)
 
         eq_(mock_request.call_count, 2)
-        mock_request.assert_any_call(
-            mock.ANY, mock.ANY, headers=mock.ANY, data=[1, 2])
-        mock_request.assert_called_with(
-            mock.ANY, mock.ANY, headers=mock.ANY, data=[3])
+        mock_request.assert_has_call(
+            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data=[1, 2]),
+            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data=[3]))
 
     @mock.patch('requests.request')
     def test_post_not_chunked_by_default(self, mock_request):
@@ -103,7 +102,7 @@ class TestBaseClient(object):
             raises(ChunkingError))
         assert_that(
             calling(client._post).with_args('/foo', ('b', 'a', 'r'), chunk_size=1),
-            raises(ChunkingError))
+            is_not(raises(ChunkingError)))
         assert_that(
             calling(client._post).with_args('/foo', ['b', 'a', 'r'], chunk_size=1),
             is_not(raises(ChunkingError)))

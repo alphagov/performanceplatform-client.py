@@ -48,13 +48,19 @@ class BaseClient(object):
 
     def _post(self, path, data, chunk_size=0):
         if chunk_size > 0:
-            if type(data) is list:
-                chunks = [data[i:i + chunk_size]
-                          for i in xrange(0, len(data), chunk_size)]
-                num_chunks = len(chunks)
+            if hasattr(data, '__iter__'):
+                chunk = []
+                chunk_num = 1
+                for datum in data:
+                    chunk.append(datum)
+                    if len(chunk) == chunk_size:
+                        log.info('Sending chunk {}'.format(chunk_num))
+                        self._request('POST', path, chunk)
+                        chunk = []
+                        chunk_num += 1
 
-                for index, chunk in enumerate(chunks):
-                    log.info("POST chunk {}/{}".format(index + 1, num_chunks))
+                if len(chunk) > 0:
+                    log.info('Sending chunk {}'.format(chunk_num))
                     self._request('POST', path, chunk)
             else:
                 raise ChunkingError('Can only chunk on lists')
