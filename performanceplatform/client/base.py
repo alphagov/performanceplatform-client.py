@@ -7,6 +7,14 @@ from functools import wraps
 log = logging.getLogger(__name__)
 
 
+class ChunkingError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 class BaseClient(object):
     def __init__(self, base_url, token, dry_run=False, request_id_fn=None):
         if not isinstance(base_url, basestring):
@@ -38,8 +46,26 @@ class BaseClient(object):
     def _get(self, path):
         return self._request('GET', path)
 
-    def _post(self, path, data):
-        return self._request('POST', path, data)
+    def _post(self, path, data, chunk_size=0):
+        if chunk_size > 0:
+            if hasattr(data, '__iter__'):
+                chunk = []
+                chunk_num = 1
+                for datum in data:
+                    chunk.append(datum)
+                    if len(chunk) == chunk_size:
+                        log.info('Sending chunk {}'.format(chunk_num))
+                        self._request('POST', path, chunk)
+                        chunk = []
+                        chunk_num += 1
+
+                if len(chunk) > 0:
+                    log.info('Sending chunk {}'.format(chunk_num))
+                    self._request('POST', path, chunk)
+            else:
+                raise ChunkingError('Can only chunk on lists')
+        else:
+            return self._request('POST', path, data)
 
     def _put(self, path, data):
         return self._request('PUT', path, data)
