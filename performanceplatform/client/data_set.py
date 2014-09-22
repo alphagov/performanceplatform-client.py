@@ -54,8 +54,8 @@ class DataSet(BaseClient):
     def get(self):
         return self._get('')
 
-    def post(self, records):
-        return self._post('', _encode_json(records))
+    def post(self, records, chunk_size=0):
+        return self._post('', _encode_json(records), chunk_size=chunk_size)
 
     def empty_data_set(self):
         return self._put('', _encode_json([]))
