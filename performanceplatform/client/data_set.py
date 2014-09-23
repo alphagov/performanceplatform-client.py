@@ -1,10 +1,6 @@
 from __future__ import unicode_literals
 
-import datetime
-import json
 import logging
-
-import pytz
 
 from performanceplatform.client.base import BaseClient
 
@@ -55,21 +51,7 @@ class DataSet(BaseClient):
         return self._get('')
 
     def post(self, records, chunk_size=0):
-        return self._post('', _encode_json(records), chunk_size=chunk_size)
+        return self._post('', records, chunk_size=chunk_size)
 
     def empty_data_set(self):
-        return self._put('', _encode_json([]))
-
-
-class JsonEncoder(json.JSONEncoder):
-
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            if obj.tzinfo is None:
-                obj = obj.replace(tzinfo=pytz.UTC)
-            return obj.isoformat()
-        return super(JsonEncoder, self).default(obj)
-
-
-def _encode_json(data):
-    return json.dumps(data, cls=JsonEncoder)
+        return self._put('', [])

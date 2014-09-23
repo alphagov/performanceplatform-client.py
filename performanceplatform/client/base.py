@@ -1,4 +1,7 @@
 import requests
+import json
+import datetime
+import pytz
 import logging
 import backoff
 import pkg_resources
@@ -94,6 +97,8 @@ class BaseClient(object):
                 method, url, headers))
         else:
             if data is not None:
+                if not isinstance(data, str):
+                    data = _encode_json(data)
                 headers, data = _gzip_payload(headers, data)
             response = _exponential_backoff(requests.request)(
                 method, url, headers=headers, data=data)
@@ -144,3 +149,17 @@ _exponential_backoff = backoff.on_predicate(
     backoff.expo,
     lambda response: response.status_code in [502, 503],
     max_tries=5)
+
+
+class JsonEncoder(json.JSONEncoder):
+
+    def default(self, obj):
+        if isinstance(obj, datetime.datetime):
+            if obj.tzinfo is None:
+                obj = obj.replace(tzinfo=pytz.UTC)
+            return obj.isoformat()
+        return super(JsonEncoder, self).default(obj)
+
+
+def _encode_json(data):
+    return json.dumps(data, cls=JsonEncoder)

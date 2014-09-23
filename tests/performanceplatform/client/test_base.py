@@ -74,8 +74,8 @@ class TestBaseClient(object):
 
         eq_(mock_request.call_count, 2)
         mock_request.assert_has_call(
-            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data=[1, 2]),
-            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data=[3]))
+            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[1,2]'),
+            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[3]'))
 
     @mock.patch('requests.request')
     def test_post_not_chunked_by_default(self, mock_request):
@@ -86,7 +86,7 @@ class TestBaseClient(object):
 
         eq_(mock_request.call_count, 1)
         mock_request.assert_any_call(
-            mock.ANY, mock.ANY, headers=mock.ANY, data=[1, 2, 3])
+            mock.ANY, mock.ANY, headers=mock.ANY, data='[1, 2, 3]')
 
     @mock.patch('requests.request')
     def test_only_lists_can_be_chunked(self, mock_request):
