@@ -109,3 +109,19 @@ class TestAdminAPI(object):
         data_set = api.get_data_set_by_name('foo_bar')
 
         eq_(data_set, None)
+
+    @mock.patch('requests.request')
+    def test_get_dashboard(self, mock_request):
+        mock_request.__name__ = 'request'
+        api = AdminAPI('http://admin.api', 'token')
+        api.get_dashboard('uuid')
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/dashboard/uuid',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+                'Authorization': 'Bearer token'
+            })),
+            data=None,
+        )

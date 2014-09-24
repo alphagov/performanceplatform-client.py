@@ -57,3 +57,7 @@ class AdminAPI(BaseClient):
 
     def add_module_type(self, data):
         return self._post('/module-type', json.dumps(data))
+
+    def get_dashboard(self, dashboard_id):
+        return self._get(
+            '/dashboard/{0}'.format(dashboard_id))
