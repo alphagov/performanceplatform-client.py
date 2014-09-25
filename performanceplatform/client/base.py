@@ -20,6 +20,8 @@ class ChunkingError(Exception):
 
 class BaseClient(object):
     def __init__(self, base_url, token, dry_run=False, request_id_fn=None):
+        self.should_gzip = True
+
         if not isinstance(base_url, basestring):
             raise ValueError("base_url must be a string")
 
@@ -99,7 +101,7 @@ class BaseClient(object):
             if data is not None:
                 if not isinstance(data, str):
                     data = _encode_json(data)
-                headers, data = _gzip_payload(headers, data)
+                headers, data = _gzip_payload(headers, data, self.should_gzip)
             response = _exponential_backoff(requests.request)(
                 method, url, headers=headers, data=data)
 
@@ -131,8 +133,8 @@ def return_none_on(status_code):
     return decorator
 
 
-def _gzip_payload(headers, data):
-    if len(data) > 2048:
+def _gzip_payload(headers, data, should_gzip):
+    if len(data) > 2048 and should_gzip:
         headers['Content-Encoding'] = 'gzip'
         import gzip
         from io import BytesIO

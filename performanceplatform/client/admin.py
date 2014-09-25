@@ -16,6 +16,14 @@ except AttributeError:
 
 class AdminAPI(BaseClient):
 
+    def __init__(self, base_url, token, dry_run=False, request_id_fn=None):
+        super(AdminAPI, self).__init__(
+            base_url,
+            token,
+            dry_run,
+            request_id_fn)
+        self.should_gzip = False
+
     @return_none_on(404)
     def get_data_set(self, data_group, data_type):
         query_result = self._get(
