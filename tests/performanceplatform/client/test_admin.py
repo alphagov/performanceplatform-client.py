@@ -1,7 +1,7 @@
 import mock
 from nose.tools import eq_
 from requests import Response
-from hamcrest import has_entries, match_equality
+from hamcrest import has_entries, match_equality, is_not
 
 from performanceplatform.client.admin import AdminAPI
 
@@ -125,3 +125,23 @@ class TestAdminAPI(object):
             })),
             data=None,
         )
+
+    @mock.patch('requests.request')
+    def test_large_payloads_to_admin_app_are_not_compressed(self, mock_request):
+        mock_request.__name__ = 'request'
+
+        client = AdminAPI('', 'token')
+        client._post('', 'x' * 3000)
+
+        mock_request.assert_called_with(
+            mock.ANY,
+            mock.ANY,
+            headers=match_equality(is_not(has_entries({
+                'Content-Encoding': 'gzip'
+            }))),
+            data=mock.ANY
+        )
+
+        unzipped_bytes = mock_request.call_args[1]['data']
+
+        eq_(3000, len(unzipped_bytes))
