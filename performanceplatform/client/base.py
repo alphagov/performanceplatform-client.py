@@ -52,8 +52,9 @@ class BaseClient(object):
         return self._request('GET', path)
 
     def _post(self, path, data, chunk_size=0):
+        is_iter = hasattr(data, '__iter__')
         if chunk_size > 0:
-            if hasattr(data, '__iter__'):
+            if is_iter:
                 chunk = []
                 chunk_num = 1
                 for datum in data:
@@ -70,6 +71,8 @@ class BaseClient(object):
             else:
                 raise ChunkingError('Can only chunk on lists')
         else:
+            if is_iter and not isinstance(data, (dict, list)):
+                data = list(data)
             return self._request('POST', path, data)
 
     def _put(self, path, data):

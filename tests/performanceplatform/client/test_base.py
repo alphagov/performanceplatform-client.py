@@ -89,7 +89,7 @@ class TestBaseClient(object):
             mock.ANY, mock.ANY, headers=mock.ANY, data='[1, 2, 3]')
 
     @mock.patch('requests.request')
-    def test_only_lists_can_be_chunked(self, mock_request):
+    def test_only_iterables_can_be_chunked(self, mock_request):
         mock_request.__name__ = 'request'
 
         client = BaseClient('http://admin.api', 'token')
@@ -106,6 +106,16 @@ class TestBaseClient(object):
         assert_that(
             calling(client._post).with_args('/foo', ['b', 'a', 'r'], chunk_size=1),
             is_not(raises(ChunkingError)))
+
+    @mock.patch('requests.request')
+    def test_iterators_are_evaluated_into_lists_when_not_chunked(self, mock_request):
+        mock_request.__name__ = 'request'
+
+        client = BaseClient('http://admin.api', 'token')
+
+        assert_that(
+            calling(client._post).with_args('/foo', iter(['b', 'a', 'r']), chunk_size=0),
+            is_not(raises(TypeError)))
 
     @mock.patch('time.sleep')
     @mock.patch('requests.request')
