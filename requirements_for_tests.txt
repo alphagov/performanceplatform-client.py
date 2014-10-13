@@ -1,5 +1,5 @@
 -r requirements.txt
-coverage
+coverage==3.7.1
 coveralls
 mock
 nose
