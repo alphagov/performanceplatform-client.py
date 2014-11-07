@@ -46,12 +46,19 @@ class AdminAPI(BaseClient):
         return self._get(
             '/users/{0}'.format(url_quote(email)))
 
+    def get_dashboard(self, dashboard_id):
+        return self._get(
+            '/dashboard/{0}'.format(dashboard_id))
+
     def create_dashboard(self, data):
         return self._post('/dashboard', json.dumps(data))
 
     def update_dashboard(self, dashboard_id, data):
         return self._put('/dashboard/{}'.format(dashboard_id),
                          json.dumps(data))
+
+    def list_organisations(self):
+        return self._get('/organisation/node')
 
     def list_modules_on_dashboard(self, dashboard_id):
         return self._get('/dashboard/{}/module'.format(dashboard_id))
@@ -65,7 +72,3 @@ class AdminAPI(BaseClient):
 
     def add_module_type(self, data):
         return self._post('/module-type', json.dumps(data))
-
-    def get_dashboard(self, dashboard_id):
-        return self._get(
-            '/dashboard/{0}'.format(dashboard_id))
