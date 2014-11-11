@@ -100,6 +100,7 @@ class BaseClient(object):
         if self.dry_run:
             log.info('HTTP {} to "{}"\nheaders: {}'.format(
                 method, url, headers))
+            log.info(data)
         else:
             if data is not None:
                 if not isinstance(data, str):
