@@ -241,7 +241,7 @@ class TestDataSet(object):
         data_set = DataSet('', None, dry_run=True)
         data_set.post({'key': datetime(2012, 12, 12)})
 
-        eq_(mock_log.info.call_count, 1)
+        eq_(mock_log.info.call_count, 2)
         eq_(mock_request.call_count, 0)
 
     @mock.patch('time.sleep')
