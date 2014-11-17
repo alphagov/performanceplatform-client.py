@@ -115,8 +115,6 @@ class BaseClient(object):
                 log.error('[PP-C] {}'.format(response.text))
                 raise
 
-            log.debug('[PP-C] {}'.format(response.text))
-
             json = response.json()
 
         return json
