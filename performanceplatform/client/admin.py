@@ -39,6 +39,9 @@ class AdminAPI(BaseClient):
     def get_data_set_by_name(self, name):
         return self._get('/data-sets/{0}'.format(name))
 
+    def get_data_set_transforms(self, name):
+        return self._get('/data-sets/{0}/transform'.format(name))
+
     def list_data_sets(self):
         return self._get('/data-sets')
 
