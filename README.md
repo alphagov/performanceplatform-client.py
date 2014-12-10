@@ -3,9 +3,9 @@
 This repo contains a pip-installable client library for interacting with the [Performance Platform](https://www.gov.uk/performance).
 
 [![PyPI version](https://badge.fury.io/py/performanceplatform-client.svg)](https://pypi.python.org/pypi/performanceplatform-client)
-[![Build status](https://travis-ci.org/alphagov/performanceplatform-client.svg?branch=master)](https://travis-ci.org/alphagov/performanceplatform-client)
+[![Build status](https://travis-ci.org/alphagov/performanceplatform-client.py.svg?branch=master)](https://travis-ci.org/alphagov/performanceplatform-client.py)
 [![Coverage Status](https://coveralls.io/repos/alphagov/performanceplatform-client/badge.png)](https://coveralls.io/r/alphagov/performanceplatform-client)
-[![Code Health](https://landscape.io/github/alphagov/performanceplatform-client/master/landscape.png)](https://landscape.io/github/alphagov/performanceplatform-client/master)
+[![Code Health](https://landscape.io/github/alphagov/performanceplatform-client.py/master/landscape.png)](https://landscape.io/github/alphagov/performanceplatform-client.py/master)
 
 
 ### Workflow
