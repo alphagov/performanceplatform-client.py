@@ -129,7 +129,8 @@ class TestAdminAPI(object):
         eq_(data_set, None)
 
     @mock.patch('requests.request')
-    def test_get_data_set_by_name_should_return_None_on_404(self, mock_request):
+    def test_get_data_set_by_name_should_return_None_on_404(
+            self, mock_request):
         response = Response()
         response.status_code = 404
         mock_request.return_value = response
@@ -173,7 +174,8 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
-    def test_large_payloads_to_admin_app_are_not_compressed(self, mock_request):
+    def test_large_payloads_to_admin_app_are_not_compressed(
+            self, mock_request):
         mock_request.__name__ = 'request'
 
         client = AdminAPI('', 'token')
