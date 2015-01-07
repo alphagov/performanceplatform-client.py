@@ -1,4 +1,5 @@
 import mock
+import json
 from nose.tools import eq_
 from requests import Response
 from hamcrest import has_entries, match_equality, is_not
@@ -23,6 +24,23 @@ class TestAdminAPI(object):
             })),
             data=None,
         )
+
+    @mock.patch('requests.request')
+    def test_create_data_set(self, mock_request):
+        mock_request.__name__ = 'request'
+        data_set_config = {'flibble': 'wibble'}
+        base_url = 'base.url.com'
+        api = AdminAPI(base_url, 'token')
+        api.create_data_set(data_set_config)
+        mock_request.assert_called_with(
+            'POST',
+            base_url + '/data-sets',
+            headers=match_equality(has_entries({
+                'Authorization': 'Bearer token',
+                'Content-Type': 'application/json',
+                'Request-Id': 'Not-Set',
+            })),
+            data=json.dumps(data_set_config))
 
     @mock.patch('requests.request')
     def test_get_data_set(self, mock_request):

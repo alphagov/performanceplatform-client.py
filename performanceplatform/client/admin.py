@@ -53,6 +53,9 @@ class AdminAPI(BaseClient):
         return self._get(
             '/dashboard/{0}'.format(dashboard_id))
 
+    def create_data_set(self, data):
+        return self._post('/data-sets', json.dumps(data))
+
     def create_dashboard(self, data):
         return self._post('/dashboard', json.dumps(data))
 
