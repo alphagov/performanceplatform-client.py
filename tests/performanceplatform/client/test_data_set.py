@@ -155,7 +155,8 @@ class TestDataSet(object):
         )
 
     @mock.patch('requests.request')
-    def test_get_data_set_by_group_and_type_with_bearer_token(self, mock_request):
+    def test_get_data_set_by_group_and_type_with_bearer_token(
+            self, mock_request):
         mock_request.__name__ = 'request'
         data_set = DataSet.from_group_and_type(
             # bit of a gotcha in the /data here
@@ -315,14 +316,12 @@ class TestDataSet(object):
         data_set = DataSet('', None)
         eq_(data_set._to_query_string({
             'foo': 'bar',
-            'bar': 'foo',
-        }), '?foo=bar&bar=foo')
+            'bar': 'foo'}), '?foo=bar&bar=foo')
 
     def test_to_query_string_with_param_list(self):
         data_set = DataSet('', None)
         eq_(data_set._to_query_string({
-            'foo': ['bar1', 'bar2'],
-        }), '?foo=bar1&foo=bar2')
+            'foo': ['bar1', 'bar2']}), '?foo=bar1&foo=bar2')
 
     @mock.patch('requests.request')
     def test_get_data_set_with_params(self, mock_request):
@@ -339,7 +338,8 @@ class TestDataSet(object):
 
         mock_request.assert_called_with(
             'GET',
-            'http://dropthebase.com/data/famous-knights/dragons-killed?foo=bar',
+            'http://dropthebase.com/data/'
+            'famous-knights/dragons-killed?foo=bar',
             headers=mock.ANY,
             data=mock.ANY,
         )

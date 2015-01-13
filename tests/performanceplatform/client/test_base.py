@@ -38,7 +38,7 @@ class TestBaseClient(object):
         mock_request.assert_called_with(
             'GET',
             'http://admin.api/foo',
-            headers = match_equality(has_entries({
+            headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token',
                 'User-Agent': starts_with('Performance Platform Client'),
@@ -101,20 +101,26 @@ class TestBaseClient(object):
             calling(client._post).with_args('/foo', 1, chunk_size=1),
             raises(ChunkingError))
         assert_that(
-            calling(client._post).with_args('/foo', ('b', 'a', 'r'), chunk_size=1),
+            calling(client._post).with_args(
+                '/foo', ('b', 'a', 'r'), chunk_size=1),
             is_not(raises(ChunkingError)))
         assert_that(
-            calling(client._post).with_args('/foo', ['b', 'a', 'r'], chunk_size=1),
+            calling(client._post).with_args(
+                '/foo', ['b', 'a', 'r'], chunk_size=1),
             is_not(raises(ChunkingError)))
 
     @mock.patch('requests.request')
-    def test_iterators_are_evaluated_into_lists_when_not_chunked(self, mock_request):
+    def test_iterators_are_evaluated_into_lists_when_not_chunked(
+            self, mock_request):
         mock_request.__name__ = 'request'
 
         client = BaseClient('http://admin.api', 'token')
 
         assert_that(
-            calling(client._post).with_args('/foo', iter(['b', 'a', 'r']), chunk_size=0),
+            calling(client._post).with_args(
+                '/foo',
+                iter(['b', 'a', 'r']),
+                chunk_size=0),
             is_not(raises(TypeError)))
 
     @mock.patch('time.sleep')

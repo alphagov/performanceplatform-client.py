@@ -1,4 +1,5 @@
 import mock
+import json
 from nose.tools import eq_
 from requests import Response
 from hamcrest import has_entries, match_equality, is_not
@@ -23,6 +24,23 @@ class TestAdminAPI(object):
             })),
             data=None,
         )
+
+    @mock.patch('requests.request')
+    def test_create_data_set(self, mock_request):
+        mock_request.__name__ = 'request'
+        data_set_config = {'flibble': 'wibble'}
+        base_url = 'base.url.com'
+        api = AdminAPI(base_url, 'token')
+        api.create_data_set(data_set_config)
+        mock_request.assert_called_with(
+            'POST',
+            base_url + '/data-sets',
+            headers=match_equality(has_entries({
+                'Authorization': 'Bearer token',
+                'Content-Type': 'application/json',
+                'Request-Id': 'Not-Set',
+            })),
+            data=json.dumps(data_set_config))
 
     @mock.patch('requests.request')
     def test_get_data_set(self, mock_request):
@@ -129,7 +147,8 @@ class TestAdminAPI(object):
         eq_(data_set, None)
 
     @mock.patch('requests.request')
-    def test_get_data_set_by_name_should_return_None_on_404(self, mock_request):
+    def test_get_data_set_by_name_should_return_None_on_404(
+            self, mock_request):
         response = Response()
         response.status_code = 404
         mock_request.return_value = response
@@ -173,7 +192,8 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
-    def test_large_payloads_to_admin_app_are_not_compressed(self, mock_request):
+    def test_large_payloads_to_admin_app_are_not_compressed(
+            self, mock_request):
         mock_request.__name__ = 'request'
 
         client = AdminAPI('', 'token')
