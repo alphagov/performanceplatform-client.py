@@ -42,6 +42,9 @@ class AdminAPI(BaseClient):
     def get_data_set_transforms(self, name):
         return self._get('/data-sets/{0}/transform'.format(name))
 
+    def get_data_set_dashboard(self, name):
+        return self._get('/data-sets/{0}/dashboard'.format(name))
+
     def list_data_sets(self):
         return self._get('/data-sets')
 
