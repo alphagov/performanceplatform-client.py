@@ -89,6 +89,21 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
+    def test_get_data_set_dashboard(self, mock_request):
+        mock_request.__name__ = 'request'
+        api = AdminAPI('http://admin.api', None)
+        data_set = api.get_data_set_dashboard('foo_bar')
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/data-sets/foo_bar/dashboard',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+            })),
+            data=None,
+        )
+
+    @mock.patch('requests.request')
     def test_make_sure_returns_response(self, mock_request):
         response = Response()
         response.status_code = 200
