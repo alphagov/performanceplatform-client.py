@@ -56,6 +56,11 @@ class AdminAPI(BaseClient):
         return self._get(
             '/dashboard/{0}'.format(dashboard_id))
 
+    def get_dashboard_by_tx_id(self, tx_id):
+        return self._get(
+            '/transactions-explorer-service/{}/dashboard'.format(tx_id),
+        )
+
     def create_data_set(self, data):
         return self._post('/data-sets', json.dumps(data))
 
