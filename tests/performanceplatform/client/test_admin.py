@@ -242,3 +242,20 @@ class TestAdminAPI(object):
         unzipped_bytes = mock_request.call_args[1]['data']
 
         eq_(3000, len(unzipped_bytes))
+
+    @mock.patch('requests.request')
+    def test_reauth(
+            self, mock_request):
+        mock_request.__name__ = 'request'
+
+        client = AdminAPI('http://meta.api.com', 'token')
+        client.reauth('foo')
+
+        mock_request.assert_called_with(
+            'POST',
+            'http://meta.api.com/auth/gds/api/users/foo/reauth',
+            headers=match_equality(has_entries({
+                'Authorization': 'Bearer token',
+            })),
+            data=None
+        )
