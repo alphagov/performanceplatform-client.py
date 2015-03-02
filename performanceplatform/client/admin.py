@@ -86,3 +86,6 @@ class AdminAPI(BaseClient):
 
     def add_module_type(self, data):
         return self._post('/module-type', json.dumps(data))
+
+    def reauth(self, uid):
+        return self._post('/auth/gds/api/users/{}/reauth'.format(uid), None)
