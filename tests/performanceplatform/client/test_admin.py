@@ -223,6 +223,22 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
+    def test_list_organisations_with_filter(self, mock_request):
+        mock_request.__name__ = 'request'
+        api = AdminAPI('http://admin.api', 'token')
+        api.list_organisations({'type': ['department', 'agency']})
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/organisation/node?type=department&type=agency',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+                'Authorization': 'Bearer token'
+            })),
+            data=None,
+        )
+
+    @mock.patch('requests.request')
     def test_large_payloads_to_admin_app_are_not_compressed(
             self, mock_request):
         mock_request.__name__ = 'request'
