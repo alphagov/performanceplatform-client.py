@@ -6,6 +6,7 @@ import logging
 import backoff
 import pkg_resources
 from functools import wraps
+import urllib
 
 log = logging.getLogger(__name__)
 
@@ -118,6 +119,22 @@ class BaseClient(object):
             json = response.json()
 
         return json
+
+    def _to_query_string(self, query_parameters):
+        query_tuples = []
+        for k, v in query_parameters.iteritems():
+            if isinstance(v, list):
+                for sv in v:
+                    query_tuples.append((k, sv))
+            else:
+                query_tuples.append((k, v))
+
+        if len(query_tuples) > 0:
+            query_string = '?' + urllib.urlencode(query_tuples)
+        else:
+            query_string = ''
+
+        return query_string
 
 
 def return_none_on(status_code):

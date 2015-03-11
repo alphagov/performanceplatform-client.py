@@ -71,8 +71,13 @@ class AdminAPI(BaseClient):
         return self._put('/dashboard/{}'.format(dashboard_id),
                          json.dumps(data))
 
-    def list_organisations(self):
-        return self._get('/organisation/node')
+    def list_organisations(self, query=None):
+        if query:
+            path = self._to_query_string(query)
+        else:
+            path = ''
+        return self._get('/organisation/node{}'.format(
+            path))
 
     def list_modules_on_dashboard(self, dashboard_id):
         return self._get('/dashboard/{}/module'.format(dashboard_id))

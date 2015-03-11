@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import logging
-import urllib
 
 from performanceplatform.client.base import BaseClient
 
@@ -56,19 +55,3 @@ class DataSet(BaseClient):
 
     def empty_data_set(self):
         return self._put('', [])
-
-    def _to_query_string(self, query_parameters):
-        query_tuples = []
-        for k, v in query_parameters.iteritems():
-            if isinstance(v, list):
-                for sv in v:
-                    query_tuples.append((k, sv))
-            else:
-                query_tuples.append((k, v))
-
-        if len(query_tuples) > 0:
-            query_string = '?' + urllib.urlencode(query_tuples)
-        else:
-            query_string = ''
-
-        return query_string
