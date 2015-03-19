@@ -116,7 +116,8 @@ class BaseClient(object):
                 log.error('[PP-C] {}'.format(response.text))
                 raise
 
-            json = response.json()
+            if response.status_code != 204:
+                json = response.json()
 
         return json
 

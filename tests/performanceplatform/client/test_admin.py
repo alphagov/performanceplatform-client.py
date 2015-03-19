@@ -262,6 +262,10 @@ class TestAdminAPI(object):
     @mock.patch('requests.request')
     def test_reauth(
             self, mock_request):
+        response = Response()
+        response.status_code = 204
+        response._content = None
+        mock_request.return_value = response
         mock_request.__name__ = 'request'
 
         client = AdminAPI('http://meta.api.com', 'token')
