@@ -26,6 +26,25 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
+    def test_create_data_group(self, mock_request):
+        mock_request.__name__ = 'request'
+        data_group_config = {
+            'name': 'carers-allowance'
+        }
+        base_url = 'get_data_group.com'
+        api = AdminAPI(base_url, 'token')
+        api.create_data_group(data_group_config)
+        mock_request.assert_called_with(
+            'POST',
+            base_url + '/data-groups',
+            headers=match_equality(has_entries({
+                'Authorization': 'Bearer token',
+                'Content-Type': 'application/json',
+                'Request-Id': 'Not-Set'})),
+            data=json.dumps(data_group_config)
+        )
+
+    @mock.patch('requests.request')
     def test_create_data_set(self, mock_request):
         mock_request.__name__ = 'request'
         data_set_config = {'flibble': 'wibble'}
