@@ -62,6 +62,25 @@ class TestAdminAPI(object):
             data=json.dumps(data_set_config))
 
     @mock.patch('requests.request')
+    def test_create_transform(self, mock_request):
+        mock_request.__name__ = 'request'
+        transform_config = {
+            'name': 'carers-allowance'
+        }
+        base_url = 'example.com'
+        api = AdminAPI(base_url, 'token')
+        api.create_transform(transform_config)
+        mock_request.assert_called_with(
+            'POST',
+            base_url + '/transform',
+            headers=match_equality(has_entries({
+                'Authorization': 'Bearer token',
+                'Content-Type': 'application/json',
+                'Request-Id': 'Not-Set'})),
+            data=json.dumps(transform_config)
+        )
+
+    @mock.patch('requests.request')
     def test_get_data_set(self, mock_request):
         mock_request.__name__ = 'request'
         api = AdminAPI('http://admin.api', 'token')
