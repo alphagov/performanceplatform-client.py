@@ -77,6 +77,9 @@ class AdminAPI(BaseClient):
     def create_data_group(self, data):
         return self._post('/data-groups', json.dumps(data))
 
+    def create_transform(self, data):
+        return self._post('/transform', json.dumps(data))
+
     def create_dashboard(self, data):
         return self._post('/dashboard', json.dumps(data))
 
