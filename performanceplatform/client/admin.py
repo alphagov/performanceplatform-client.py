@@ -71,6 +71,9 @@ class AdminAPI(BaseClient):
             '/transactions-explorer-service/{}/dashboard'.format(tx_id),
         )
 
+    def get_transform_types(self):
+        return self._get('/transform-type')
+
     def create_data_set(self, data):
         return self._post('/data-sets', json.dumps(data))
 
