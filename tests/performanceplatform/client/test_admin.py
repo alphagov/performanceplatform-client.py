@@ -142,6 +142,22 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
+    def test_get_transform_types(self, mock_request):
+        mock_request.__name__ = 'request'
+        api = AdminAPI('http://admin.api', 'token')
+        api.get_transform_types()
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/transform-type',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+                'Authorization': 'Bearer token'
+            })),
+            data=None,
+        )
+
+    @mock.patch('requests.request')
     def test_make_sure_returns_response(self, mock_request):
         response = Response()
         response.status_code = 200
