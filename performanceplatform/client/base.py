@@ -169,7 +169,7 @@ def _gzip_payload(headers, data, should_gzip):
 
 _exponential_backoff = backoff.on_predicate(
     backoff.expo,
-    lambda response: response.status_code in [502, 503],
+    lambda response: response.status_code in [500, 502, 503],
     max_tries=5)
 
 
