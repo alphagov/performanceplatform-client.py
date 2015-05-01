@@ -66,6 +66,10 @@ class AdminAPI(BaseClient):
         return self._get(
             '/dashboard/{0}'.format(dashboard_id))
 
+    def get_module(self, module_id):
+        return self._get(
+            '/module/{0}'.format(module_id))
+
     def get_dashboard_by_tx_id(self, tx_id):
         return self._get(
             '/transactions-explorer-service/{}/dashboard'.format(tx_id),
