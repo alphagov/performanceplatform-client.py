@@ -100,7 +100,7 @@ class TestAdminAPI(object):
     def test_get_data_set_by_name(self, mock_request):
         mock_request.__name__ = 'request'
         api = AdminAPI('http://admin.api', None)
-        data_set = api.get_data_set_by_name('foo_bar')
+        api.get_data_set_by_name('foo_bar')
 
         mock_request.assert_called_with(
             'GET',
@@ -115,7 +115,7 @@ class TestAdminAPI(object):
     def test_get_data_set_transforms(self, mock_request):
         mock_request.__name__ = 'request'
         api = AdminAPI('http://admin.api', None)
-        data_set = api.get_data_set_transforms('foo_bar')
+        api.get_data_set_transforms('foo_bar')
 
         mock_request.assert_called_with(
             'GET',
@@ -130,7 +130,7 @@ class TestAdminAPI(object):
     def test_get_data_set_dashboard(self, mock_request):
         mock_request.__name__ = 'request'
         api = AdminAPI('http://admin.api', None)
-        data_set = api.get_data_set_dashboard('foo_bar')
+        api.get_data_set_dashboard('foo_bar')
 
         mock_request.assert_called_with(
             'GET',
@@ -268,7 +268,8 @@ class TestAdminAPI(object):
 
         mock_request.assert_called_with(
             'GET',
-            'http://admin.api/transactions-explorer-service/dft-some-service/dashboard',
+            "http://admin.api/transactions-explorer-service/"
+            "dft-some-service/dashboard",
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
