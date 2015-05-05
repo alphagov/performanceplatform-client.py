@@ -245,6 +245,22 @@ class TestAdminAPI(object):
         )
 
     @mock.patch('requests.request')
+    def test_get_module(self, mock_request):
+        mock_request.__name__ = 'request'
+        api = AdminAPI('http://admin.api', 'token')
+        api.get_module('uuid')
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/module/uuid',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+                'Authorization': 'Bearer token'
+            })),
+            data=None,
+        )
+
+    @mock.patch('requests.request')
     def test_get_dashboard_by_tx_id(self, mock_request):
         mock_request.__name__ = 'request'
         api = AdminAPI('http://admin.api', 'token')
