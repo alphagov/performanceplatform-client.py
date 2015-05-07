@@ -62,6 +62,10 @@ class AdminAPI(BaseClient):
         return self._get(
             '/users/{0}'.format(url_quote(email)))
 
+    def list_dashboards(self):
+        return self._get(
+            '/dashboards')
+
     def get_dashboard(self, dashboard_id):
         return self._get(
             '/dashboard/{0}'.format(dashboard_id))
