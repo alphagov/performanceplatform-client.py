@@ -229,6 +229,22 @@ class TestAdminAPI(object):
         eq_(data_set, None)
 
     @mock.patch('requests.request')
+    def test_list_dashboards(self, mock_request):
+        mock_request.__name__ = 'request'
+        api = AdminAPI('http://admin.api', 'token')
+        api.list_dashboards()
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/dashboards',
+            headers=match_equality(has_entries({
+                'Accept': 'application/json',
+                'Authorization': 'Bearer token'
+            })),
+            data=None,
+        )
+
+    @mock.patch('requests.request')
     def test_get_dashboard(self, mock_request):
         mock_request.__name__ = 'request'
         api = AdminAPI('http://admin.api', 'token')
