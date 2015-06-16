@@ -79,6 +79,9 @@ class BaseClient(object):
     def _put(self, path, data):
         return self._request('PUT', path, data)
 
+    def _delete(self, path):
+        return self._request('DELETE', path)
+
     def get_version(self):
         return pkg_resources.\
             get_distribution('performanceplatform-client').version

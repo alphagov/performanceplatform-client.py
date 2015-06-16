@@ -101,6 +101,9 @@ class AdminAPI(BaseClient):
         return self._put('/dashboard/{}'.format(dashboard_id),
                          json.dumps(data))
 
+    def delete_dashboard(self, dashboard_id):
+        return self._delete('/dashboard/{}'.format(dashboard_id))
+
     def list_organisations(self, query=None):
         if query:
             path = self._to_query_string(query)
