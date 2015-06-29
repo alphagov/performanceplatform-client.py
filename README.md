@@ -50,3 +50,10 @@ data_set = DataSet.from_group_and_type(
 
 data_set.post({'foo': 'bar'})
 ```
+
+### Running the tests
+
+```
+pip install tox
+tox
+```

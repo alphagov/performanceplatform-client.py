@@ -1,9 +1,7 @@
 from datetime import datetime
 
 import mock
-import multiprocessing  # quieten the test worker
-from nose.tools import eq_, assert_raises
-from nose import SkipTest
+import pytest
 from requests import Response, HTTPError
 from hamcrest import has_entries, match_equality
 
@@ -14,9 +12,9 @@ class TestDataSet(object):
 
     def test_from_target(self):
         data_set = DataSet('foo', 'bar')
-        eq_(data_set.base_url, 'foo')
-        eq_(data_set.token, 'bar')
-        eq_(data_set.dry_run, False)
+        assert data_set.base_url == 'foo'
+        assert data_set.token == 'bar'
+        assert data_set.dry_run is False
 
     def test_from_config(self):
         data_set = DataSet.from_config({
@@ -24,17 +22,17 @@ class TestDataSet(object):
             'token': 'bar',
             'dry_run': True,
         })
-        eq_(data_set.base_url, 'foo')
-        eq_(data_set.token, 'bar')
-        eq_(data_set.dry_run, True)
+        assert data_set.base_url == 'foo'
+        assert data_set.token == 'bar'
+        assert data_set.dry_run is True
 
     def test_from_name(self):
         data_set = DataSet.from_name(
             'foo',
             'woof'
         )
-        eq_(data_set.base_url, 'foo/woof')
-        eq_(data_set.dry_run, False)
+        assert data_set.base_url == 'foo/woof'
+        assert data_set.dry_run is False
 
     def test_from_name_with_dry_run(self):
         data_set = DataSet.from_name(
@@ -42,8 +40,8 @@ class TestDataSet(object):
             'woof',
             True
         )
-        eq_(data_set.base_url, 'foo/woof')
-        eq_(data_set.dry_run, True)
+        assert data_set.base_url == 'foo/woof'
+        assert data_set.dry_run is True
 
     def test_set_token(self):
         data_set = DataSet.from_name(
@@ -52,11 +50,11 @@ class TestDataSet(object):
             True
         )
 
-        eq_(data_set.token, None)
+        assert data_set.token is None
 
         data_set.set_token("hotflops69")
 
-        eq_(data_set.token, "hotflops69")
+        assert data_set.token == "hotflops69"
 
     def test_from_group_and_type(self):
         data_set = DataSet.from_group_and_type(
@@ -64,8 +62,8 @@ class TestDataSet(object):
             'dogs',
             'hair-length'
         )
-        eq_(data_set.base_url, 'base.url.com/dogs/hair-length')
-        eq_(data_set.dry_run, False)
+        assert data_set.base_url == 'base.url.com/dogs/hair-length'
+        assert data_set.dry_run is False
 
     def test_from_group_and_type_with_dry_run(self):
         data_set = DataSet.from_group_and_type(
@@ -74,8 +72,8 @@ class TestDataSet(object):
             'hair-length',
             True,
         )
-        eq_(data_set.base_url, 'base.url.com/dogs/hair-length')
-        eq_(data_set.dry_run, True)
+        assert data_set.base_url == 'base.url.com/dogs/hair-length'
+        assert data_set.dry_run is True
 
     @mock.patch('requests.request')
     def test_empty_data_set(self, mock_request):
@@ -199,12 +197,12 @@ class TestDataSet(object):
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )
 
+    @pytest.mark.skipif()
     @mock.patch('requests.request')
     def test_post_to_data_set_by_group_and_type_without_bearer_token(
         self, mock_request
     ):
         """ Need to fix the behaviour here """
-        raise SkipTest
         mock_request.__name__ = 'request'
         data_set = DataSet.from_group_and_type(
             # bit of a gotcha in the /data here
@@ -226,13 +224,14 @@ class TestDataSet(object):
         )
 
     @mock.patch('requests.request')
-    def test_raises_error_on_4XX_or_5XX_responses(self, mock_request):
+    def test_raises_error_on_4xx_or_5xx_responses(self, mock_request):
         mock_request.__name__ = 'request'
         data_set = DataSet('', None)
         response = Response()
         response.status_code = 418
         mock_request.return_value = response
-        assert_raises(HTTPError, data_set.post, {'key': 'foo'})
+        with pytest.raises(HTTPError):
+            data_set.post({'key': 'foo'})
 
     @mock.patch('requests.request')
     @mock.patch('performanceplatform.client.base.log')
@@ -242,8 +241,8 @@ class TestDataSet(object):
         data_set = DataSet('', None, dry_run=True)
         data_set.post({'key': datetime(2012, 12, 12)})
 
-        eq_(mock_log.info.call_count, 2)
-        eq_(mock_request.call_count, 0)
+        assert mock_log.info.call_count == 2
+        assert mock_request.call_count == 0
 
     @mock.patch('time.sleep')
     @mock.patch('requests.request')
@@ -292,7 +291,8 @@ class TestDataSet(object):
         mock_request.side_effect = [bad]
         mock_request.__name__ = 'request'
 
-        assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
+        with pytest.raises(HTTPError):
+            data_set.post([{'key': 'foo'}])
 
     @mock.patch('time.sleep')
     @mock.patch('requests.request')
@@ -305,23 +305,24 @@ class TestDataSet(object):
         mock_request.return_value = bad
         mock_request.__name__ = 'request'
 
-        assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
-        eq_(mock_request.call_count, 5)
+        with pytest.raises(HTTPError):
+            data_set.post([{'key': 'foo'}])
+        assert mock_request.call_count == 5
 
     def test_to_query_string_with_empty(self):
         data_set = DataSet('', None)
-        eq_(data_set._to_query_string({}), '')
+        assert data_set._to_query_string({}) == ''
 
     def test_to_query_string_with_params(self):
         data_set = DataSet('', None)
-        eq_(data_set._to_query_string({
+        assert data_set._to_query_string({
             'foo': 'bar',
-            'bar': 'foo'}), '?foo=bar&bar=foo')
+            'bar': 'foo'}) == '?foo=bar&bar=foo'
 
     def test_to_query_string_with_param_list(self):
         data_set = DataSet('', None)
-        eq_(data_set._to_query_string({
-            'foo': ['bar1', 'bar2']}), '?foo=bar1&foo=bar2')
+        assert data_set._to_query_string({
+            'foo': ['bar1', 'bar2']}) == '?foo=bar1&foo=bar2'
 
     @mock.patch('requests.request')
     def test_get_data_set_with_params(self, mock_request):

@@ -126,7 +126,7 @@ class BaseClient(object):
 
     def _to_query_string(self, query_parameters):
         query_tuples = []
-        for k, v in query_parameters.iteritems():
+        for k, v in sorted(query_parameters.iteritems(), reverse=True):
             if isinstance(v, list):
                 for sv in v:
                     query_tuples.append((k, sv))

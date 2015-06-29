@@ -1,6 +1,6 @@
 import mock
 from requests import Response
-from nose.tools import eq_, assert_raises
+import pytest
 from hamcrest import (
     has_entries, match_equality, starts_with,
     assert_that, calling, raises, is_not
@@ -20,11 +20,13 @@ def make_response(status_code=200, content=''):
 class TestBaseClient(object):
     def test_url_must_be_a_string(self):
         for base_url in [None, 123]:
-            assert_raises(ValueError, BaseClient, base_url, '')
+            with pytest.raises(ValueError):
+                BaseClient(base_url, '')
         BaseClient('', '')
 
     def test_token_must_be_none_or_string(self):
-        assert_raises(ValueError, BaseClient, '', 123)
+        with pytest.raises(ValueError):
+            BaseClient('', 123)
         BaseClient('', None)
         BaseClient('', '')
 
@@ -56,7 +58,7 @@ class TestBaseClient(object):
         mock_request.assert_called_with(
             'POST',
             'http://admin.api/foo',
-            headers = match_equality(has_entries({
+            headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token',
                 'User-Agent': starts_with('Performance Platform Client'),
@@ -72,7 +74,7 @@ class TestBaseClient(object):
         client = BaseClient('http://admin.api', 'token')
         client._post('/foo', [1, 2, 3], chunk_size=2)
 
-        eq_(mock_request.call_count, 2)
+        assert mock_request.call_count == 2
         mock_request.assert_has_call(
             mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[1,2]'),
             mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[3]'))
@@ -84,7 +86,7 @@ class TestBaseClient(object):
         client = BaseClient('http://admin.api', 'token')
         client._post('/foo', [1, 2, 3])
 
-        eq_(mock_request.call_count, 1)
+        assert mock_request.call_count == 1
         mock_request.assert_any_call(
             mock.ANY, mock.ANY, headers=mock.ANY, data='[1, 2, 3]')
 
@@ -135,7 +137,7 @@ class TestBaseClient(object):
         client = BaseClient('http://admin.api', 'token')
         client._get('/foo')
 
-        eq_(mock_request.call_count, 3)
+        assert mock_request.call_count == 3
 
     @mock.patch('requests.request')
     def test_large_payloads_are_compressed(self, mock_request):
@@ -155,10 +157,10 @@ class TestBaseClient(object):
 
         gzipped_bytes = mock_request.call_args[1]['data'].getvalue()
 
-        eq_(38, len(gzipped_bytes))
+        assert 38 == len(gzipped_bytes)
 
         # Does it look like a gzipped stream of bytes?
         # http://tools.ietf.org/html/rfc1952#page-5
-        eq_(b'\x1f'[0], gzipped_bytes[0])
-        eq_(b'\x8b'[0], gzipped_bytes[1])
-        eq_(b'\x08'[0], gzipped_bytes[2])
+        assert b'\x1f'[0] == gzipped_bytes[0]
+        assert b'\x8b'[0] == gzipped_bytes[1]
+        assert b'\x08'[0] == gzipped_bytes[2]
