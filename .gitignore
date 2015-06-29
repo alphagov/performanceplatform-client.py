@@ -10,3 +10,4 @@ creds/
 out
 venv
 *.egg
+.tox/

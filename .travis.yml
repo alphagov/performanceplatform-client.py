@@ -3,7 +3,8 @@ python:
   - "2.7"
 # Removed until backoff is PY3 compatible
 #  - "3.4"
-script: ./run_tests.sh
+install: pip install tox
+script: tox
 after_success:
   - pip install coveralls
   - coveralls

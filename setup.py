@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 
 from setuptools import setup, find_packages
 
@@ -50,20 +51,15 @@ if __name__ == '__main__':
         version=_read('VERSION').strip(),
         packages=find_packages(),
         namespace_packages=['performanceplatform'],
-
         author='GDS Developers',
         author_email='performance@digital.cabinet-office.gov.uk',
         maintainer='Government Digital Service',
         url='https://github.com/alphagov/performanceplatform-client',
-
         description='A client library for sending data to the Performance '
             'Platform',
-        long_description=_read('README.rst'),
         license='MIT',
         keywords='api data performance_platform',
-
         install_requires=_install_requirements(),
         tests_require=_get_requirements('requirements_for_tests.txt'),
-
-        test_suite='nose.collector',
+        long_description=_read('README.rst'),
     )

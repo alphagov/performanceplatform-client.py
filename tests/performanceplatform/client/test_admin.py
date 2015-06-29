@@ -1,6 +1,6 @@
-import mock
 import json
-from nose.tools import eq_
+
+import mock
 from requests import Response
 from hamcrest import has_entries, match_equality, is_not
 
@@ -168,14 +168,14 @@ class TestAdminAPI(object):
         api = AdminAPI('http://admin.api', 'token')
         data_sets = api.list_data_sets()
 
-        eq_(data_sets[0]['data-type'], 'type')
+        assert data_sets[0]['data-type'] == 'type'
 
     @mock.patch('requests.request')
     def test_dry_run(self, mock_request):
         api = AdminAPI('http://admin.api', 'token', dry_run=True)
         api.list_data_sets()
 
-        eq_(mock_request.called, False)
+        assert mock_request.called is False
 
     @mock.patch('requests.request')
     def test_get_data_set_should_only_return_one(self, mock_request):
@@ -188,10 +188,10 @@ class TestAdminAPI(object):
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'type')
 
-        eq_(data_set['data-type'], 'type')
+        assert data_set['data-type'] == 'type'
 
     @mock.patch('requests.request')
-    def test_get_data_set_should_return_None_if_no_match(self, mock_request):
+    def test_get_data_set_should_return_none_if_no_match(self, mock_request):
         response = Response()
         response.status_code = 200
         response._content = b'[]'
@@ -201,10 +201,10 @@ class TestAdminAPI(object):
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'type')
 
-        eq_(data_set, None)
+        assert data_set is None
 
     @mock.patch('requests.request')
-    def test_get_data_set_should_return_None_on_404(self, mock_request):
+    def test_get_data_set_should_return_none_on_404(self, mock_request):
         response = Response()
         response.status_code = 404
         mock_request.return_value = response
@@ -213,10 +213,10 @@ class TestAdminAPI(object):
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set('foo', 'bar')
 
-        eq_(data_set, None)
+        assert data_set is None
 
     @mock.patch('requests.request')
-    def test_get_data_set_by_name_should_return_None_on_404(
+    def test_get_data_set_by_name_should_return_none_on_404(
             self, mock_request):
         response = Response()
         response.status_code = 404
@@ -226,7 +226,7 @@ class TestAdminAPI(object):
         api = AdminAPI('http://admin.api', 'token')
         data_set = api.get_data_set_by_name('foo_bar')
 
-        eq_(data_set, None)
+        assert data_set is None
 
     @mock.patch('requests.request')
     def test_list_dashboards(self, mock_request):
@@ -376,7 +376,7 @@ class TestAdminAPI(object):
 
         unzipped_bytes = mock_request.call_args[1]['data']
 
-        eq_(3000, len(unzipped_bytes))
+        assert 3000 == len(unzipped_bytes)
 
     @mock.patch('requests.request')
     def test_reauth(
