@@ -35,6 +35,7 @@ function publish_or_die(){
 function pypi_check(){
     python setup.py sdist register -r pypitest
     python setup.py sdist upload -r pypitest
+    python setup.py bdist_wheel upload -r pypitest
     echo "Testing upload to PyPI test server" | pretty
     publish
 }
