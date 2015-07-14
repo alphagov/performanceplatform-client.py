@@ -308,6 +308,22 @@ class TestDataSet(object):
         assert_raises(HTTPError, data_set.post, [{'key': 'foo'}])
         eq_(mock_request.call_count, 5)
 
+    @mock.patch('time.sleep')
+    @mock.patch('requests.request')
+    def test_does_not_backoff_if_retry_on_error_is_false(
+            self, mock_request, mock_sleep):
+        data_set = DataSet('', None, retry_on_error=False)
+
+        bad = Response()
+        bad.status_code = 502
+
+        mock_request.return_value = bad
+        mock_request.__name__ = 'request'
+
+        assert_raises(
+            HTTPError, data_set.post, [{'key': 'foo'}])
+        eq_(mock_request.call_count, 1)
+
     def test_to_query_string_with_empty(self):
         data_set = DataSet('', None)
         eq_(data_set._to_query_string({}), '')
