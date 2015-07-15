@@ -20,7 +20,8 @@ class ChunkingError(Exception):
 
 
 class BaseClient(object):
-    def __init__(self, base_url, token, dry_run=False, request_id_fn=None):
+    def __init__(self, base_url, token, dry_run=False, request_id_fn=None,
+                 retry_on_error=True):
         self.should_gzip = True
 
         if not isinstance(base_url, basestring):
@@ -32,6 +33,7 @@ class BaseClient(object):
         self._base_url = base_url
         self._token = token
         self._dry_run = dry_run
+        self.retry_on_error = retry_on_error
         if request_id_fn:
             self._request_id_fn = request_id_fn
         else:
@@ -110,8 +112,13 @@ class BaseClient(object):
                 if not isinstance(data, str):
                     data = _encode_json(data)
                 headers, data = _gzip_payload(headers, data, self.should_gzip)
-            response = _exponential_backoff(requests.request)(
-                method, url, headers=headers, data=data)
+
+            if self.retry_on_error:
+                response = _exponential_backoff(requests.request)(
+                    method, url, headers=headers, data=data)
+            else:
+                response = requests.request(
+                    method, url, headers=headers, data=data)
 
             try:
                 response.raise_for_status()
