@@ -53,5 +53,5 @@ function run_unit_tests {
 clean_output_directory
 activate_virtualenv_if_exists
 clean_up_python_bytecode
-run_style_checks
 run_unit_tests
+run_style_checks
