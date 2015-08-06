@@ -40,7 +40,7 @@ class TestAdminAPI(object):
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
-                'Request-Id': 'Not-Set'})),
+            })),
             data=json.dumps(data_group_config)
         )
 
@@ -57,7 +57,6 @@ class TestAdminAPI(object):
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
-                'Request-Id': 'Not-Set',
             })),
             data=json.dumps(data_set_config))
 
@@ -76,7 +75,7 @@ class TestAdminAPI(object):
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
-                'Request-Id': 'Not-Set'})),
+            })),
             data=json.dumps(transform_config)
         )
 
