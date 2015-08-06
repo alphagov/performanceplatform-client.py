@@ -194,7 +194,6 @@ class TestDataSet(object):
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
-                'Request-Id': 'Not-Set',
             })),
             data='{"key": "2012-12-12T00:00:00+00:00"}'
         )

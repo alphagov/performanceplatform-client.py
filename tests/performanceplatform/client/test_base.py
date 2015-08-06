@@ -47,6 +47,23 @@ class TestBaseClient(object):
         )
 
     @mock.patch('requests.request')
+    def test_request_has_sets_request_id(self, mock_request):
+        mock_request.__name__ = 'request'
+
+        client = BaseClient(
+            'http://admin.api', 'token', request_id_fn=lambda: 'foo')
+        client._get('/foo')
+
+        mock_request.assert_called_with(
+            'GET',
+            'http://admin.api/foo',
+            headers=match_equality(has_entries({
+                'Govuk-Request-Id': 'foo',
+            })),
+            data=None,
+        )
+
+    @mock.patch('requests.request')
     def test_post_has_content_type_header(self, mock_request):
         mock_request.__name__ = 'request'
 

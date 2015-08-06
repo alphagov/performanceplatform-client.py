@@ -64,6 +64,7 @@ if __name__ == '__main__':
 
         install_requires=_install_requirements(),
         tests_require=_get_requirements('requirements_for_tests.txt'),
+        setup_requires=['nose>=1.0'],
 
         test_suite='nose.collector',
     )

@@ -95,7 +95,7 @@ class BaseClient(object):
             'Accept': 'application/json',
             'User-Agent': 'Performance Platform Client {}'.format(
                 self.get_version()),
-            'Request-Id': self._request_id_fn(),
+            'Govuk-Request-Id': self._request_id_fn(),
         }
 
         if self.token is not None:
