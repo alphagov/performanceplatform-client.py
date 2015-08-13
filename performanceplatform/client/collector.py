@@ -14,12 +14,6 @@ class CollectorAPI(BaseClient):
             request_id_fn)
         self.should_gzip = False
 
-    def get_collector_type(self, collector_type):
-        return self._get('/collector-type/{0}'.format(collector_type))
-
-    def list_collector_types(self):
-        return self._get('/collector-type')
-
     def get_collector(self, collector):
         return self._get('/collector/{0}'.format(collector))
 
