@@ -90,9 +90,10 @@ class TestBaseClient(object):
         client._post('/foo', [1, 2, 3], chunk_size=2)
 
         eq_(mock_request.call_count, 2)
-        mock_request.assert_has_call(
-            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[1,2]'),
-            mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[3]'))
+        mock_request.assert_has_calls(
+            [mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[1, 2]'),
+             mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[3]')],
+            any_order=True)
 
     @mock.patch('requests.request')
     def test_post_not_chunked_by_default(self, mock_request):
