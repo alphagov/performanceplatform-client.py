@@ -1,9 +1,8 @@
+import json
 import logging
 import urllib
-import json
 
 from .base import BaseClient, return_none_on
-
 
 log = logging.getLogger(__name__)
 
@@ -27,8 +26,9 @@ class AdminAPI(BaseClient):
     @return_none_on(404)
     def get_data_set(self, data_group, data_type):
         query_result = self._get(
-            '/data-sets?data-group={0}&data-type={1}'.format(data_group,
-                                                             data_type))
+            path='/data-sets',
+            params={"data-group": data_group, "data-type": data_type}
+        )
 
         if query_result is not None:
             query_result = query_result[0] if len(query_result) > 0 else None
@@ -51,7 +51,9 @@ class AdminAPI(BaseClient):
     @return_none_on(404)
     def get_data_group(self, data_group):
         query_result = self._get(
-            '/data-groups?name={0}'.format(data_group))
+            path='/data-groups',
+            params={'name': data_group},
+        )
 
         if query_result is not None:
             query_result = query_result[0] if len(query_result) > 0 else None
@@ -74,8 +76,8 @@ class AdminAPI(BaseClient):
         return self._get(
             '/module/{0}'.format(module_id))
 
-    def get_dashboards(self):
-        return self._get('/dashboard')
+    def get_dashboards(self, params=None):
+        return self._get('/dashboard', params=params)
 
     def get_dashboard_by_tx_id(self, tx_id):
         return self._get(
@@ -105,12 +107,7 @@ class AdminAPI(BaseClient):
         return self._delete('/dashboard/{}'.format(dashboard_id))
 
     def list_organisations(self, query=None):
-        if query:
-            path = self._to_query_string(query)
-        else:
-            path = ''
-        return self._get('/organisation/node{}'.format(
-            path))
+        return self._get(path='/organisation/node', params=query)
 
     def list_modules_on_dashboard(self, dashboard_id):
         return self._get('/dashboard/{}/module'.format(dashboard_id))

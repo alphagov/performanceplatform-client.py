@@ -1,12 +1,12 @@
-import requests
-import json
 import datetime
-import pytz
+import json
 import logging
+from functools import wraps
+
 import backoff
 import pkg_resources
-from functools import wraps
-import urllib
+import pytz
+import requests
 
 log = logging.getLogger(__name__)
 
@@ -51,8 +51,8 @@ class BaseClient(object):
     def dry_run(self):
         return self._dry_run
 
-    def _get(self, path):
-        return self._request('GET', path)
+    def _get(self, path, params=None):
+        return self._request(method='GET', path=path, params=params)
 
     def _post(self, path, data, chunk_size=0):
         is_iter = hasattr(data, '__iter__')
@@ -88,7 +88,7 @@ class BaseClient(object):
         return pkg_resources.\
             get_distribution('performanceplatform-client').version
 
-    def _request(self, method, path, data=None):
+    def _request(self, method, path, data=None, params=None):
         json = None
         url = self.base_url + path
         headers = {
@@ -113,12 +113,17 @@ class BaseClient(object):
                     data = _encode_json(data)
                 headers, data = _gzip_payload(headers, data, self.should_gzip)
 
+            kwargs = dict(
+                method=method,
+                url=url,
+                headers=headers,
+                data=data,
+                params=params,
+            )
             if self.retry_on_error:
-                response = _exponential_backoff(requests.request)(
-                    method, url, headers=headers, data=data)
+                response = _exponential_backoff(requests.request)(**kwargs)
             else:
-                response = requests.request(
-                    method, url, headers=headers, data=data)
+                response = requests.request(**kwargs)
 
             try:
                 response.raise_for_status()
@@ -130,22 +135,6 @@ class BaseClient(object):
                 json = response.json()
 
         return json
-
-    def _to_query_string(self, query_parameters):
-        query_tuples = []
-        for k, v in query_parameters.iteritems():
-            if isinstance(v, list):
-                for sv in v:
-                    query_tuples.append((k, sv))
-            else:
-                query_tuples.append((k, v))
-
-        if len(query_tuples) > 0:
-            query_string = '?' + urllib.urlencode(query_tuples)
-        else:
-            query_string = ''
-
-        return query_string
 
 
 def return_none_on(status_code):

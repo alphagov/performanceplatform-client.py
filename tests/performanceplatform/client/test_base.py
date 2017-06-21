@@ -1,10 +1,10 @@
 import mock
-from requests import Response
-from nose.tools import eq_, assert_raises
 from hamcrest import (
     has_entries, match_equality, starts_with,
     assert_that, calling, raises, is_not
 )
+from nose.tools import eq_, assert_raises
+from requests import Response
 
 from performanceplatform.client.base import BaseClient, ChunkingError
 
@@ -36,14 +36,15 @@ class TestBaseClient(object):
         client._get('/foo')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/foo',
+            method='GET',
+            url='http://admin.api/foo',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token',
                 'User-Agent': starts_with('Performance Platform Client'),
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -55,12 +56,13 @@ class TestBaseClient(object):
         client._get('/foo')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/foo',
+            method='GET',
+            url='http://admin.api/foo',
             headers=match_equality(has_entries({
                 'Govuk-Request-Id': 'foo',
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -71,8 +73,8 @@ class TestBaseClient(object):
         client._post('/foo', 'bar')
 
         mock_request.assert_called_with(
-            'POST',
-            'http://admin.api/foo',
+            method='POST',
+            url='http://admin.api/foo',
             headers = match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token',
@@ -80,6 +82,7 @@ class TestBaseClient(object):
                 'Content-Type': 'application/json',
             })),
             data='bar',
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -91,8 +94,16 @@ class TestBaseClient(object):
 
         eq_(mock_request.call_count, 2)
         mock_request.assert_has_calls(
-            [mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[1, 2]'),
-             mock.call(mock.ANY, mock.ANY, headers=mock.ANY, data='[3]')],
+            [
+                mock.call(
+                    method=mock.ANY, url=mock.ANY, headers=mock.ANY,
+                    data='[1, 2]', params=None
+                ),
+                mock.call(
+                    method=mock.ANY, url=mock.ANY, headers=mock.ANY,
+                    data='[3]', params=None
+                )
+            ],
             any_order=True)
 
     @mock.patch('requests.request')
@@ -104,7 +115,9 @@ class TestBaseClient(object):
 
         eq_(mock_request.call_count, 1)
         mock_request.assert_any_call(
-            mock.ANY, mock.ANY, headers=mock.ANY, data='[1, 2, 3]')
+            method=mock.ANY, url=mock.ANY, headers=mock.ANY,
+            data='[1, 2, 3]', params=None,
+        )
 
     @mock.patch('requests.request')
     def test_only_iterables_can_be_chunked(self, mock_request):
@@ -163,12 +176,13 @@ class TestBaseClient(object):
         client._post('', 'x' * 3000)
 
         mock_request.assert_called_with(
-            mock.ANY,
-            mock.ANY,
+            method=mock.ANY,
+            url=mock.ANY,
             headers=match_equality(has_entries({
                 'Content-Encoding': 'gzip'
             })),
-            data=mock.ANY
+            data=mock.ANY,
+            params=None,
         )
 
         gzipped_bytes = mock_request.call_args[1]['data'].getvalue()

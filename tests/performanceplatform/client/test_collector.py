@@ -11,13 +11,14 @@ class TestCollectorAPI(object):
         api.get_collector_type('foo-type')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://collector.api/collector-type/foo-type',
+            method='GET',
+            url='http://collector.api/collector-type/foo-type',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @patch('requests.request')
@@ -27,13 +28,14 @@ class TestCollectorAPI(object):
         api.list_collector_types()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://collector.api/collector-type',
+            method='GET',
+            url='http://collector.api/collector-type',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @patch('requests.request')
@@ -43,13 +45,14 @@ class TestCollectorAPI(object):
         api.get_collector('foo')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://collector.api/collector/foo',
+            method='GET',
+            url='http://collector.api/collector/foo',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @patch('requests.request')
@@ -59,11 +62,12 @@ class TestCollectorAPI(object):
         api.list_collectors()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://collector.api/collector',
+            method='GET',
+            url='http://collector.api/collector',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
