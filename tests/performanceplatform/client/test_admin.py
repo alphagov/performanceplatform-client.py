@@ -1,8 +1,9 @@
-import mock
 import json
+
+import mock
+from hamcrest import has_entries, match_equality, is_not
 from nose.tools import eq_
 from requests import Response
-from hamcrest import has_entries, match_equality, is_not
 
 from performanceplatform.client.admin import AdminAPI
 
@@ -16,13 +17,14 @@ class TestAdminAPI(object):
         api.get_user('foo@bar.com')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/users/foo%40bar.com',
+            method='GET',
+            url='http://admin.api/users/foo%40bar.com',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -35,13 +37,14 @@ class TestAdminAPI(object):
         api = AdminAPI(base_url, 'token')
         api.create_data_group(data_group_config)
         mock_request.assert_called_with(
-            'POST',
-            base_url + '/data-groups',
+            method='POST',
+            url=base_url + '/data-groups',
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
             })),
-            data=json.dumps(data_group_config)
+            data=json.dumps(data_group_config),
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -52,13 +55,15 @@ class TestAdminAPI(object):
         api = AdminAPI(base_url, 'token')
         api.create_data_set(data_set_config)
         mock_request.assert_called_with(
-            'POST',
-            base_url + '/data-sets',
+            method='POST',
+            url=base_url + '/data-sets',
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
             })),
-            data=json.dumps(data_set_config))
+            data=json.dumps(data_set_config),
+            params=None,
+        )
 
     @mock.patch('requests.request')
     def test_create_transform(self, mock_request):
@@ -70,13 +75,14 @@ class TestAdminAPI(object):
         api = AdminAPI(base_url, 'token')
         api.create_transform(transform_config)
         mock_request.assert_called_with(
-            'POST',
-            base_url + '/transform',
+            method='POST',
+            url=base_url + '/transform',
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
             })),
-            data=json.dumps(transform_config)
+            data=json.dumps(transform_config),
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -86,13 +92,14 @@ class TestAdminAPI(object):
         api.get_data_set('group', 'type')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/data-sets?data-group=group&data-type=type',
+            method='GET',
+            url='http://admin.api/data-sets',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params={'data-group': 'group', 'data-type': 'type'},
         )
 
     @mock.patch('requests.request')
@@ -102,12 +109,13 @@ class TestAdminAPI(object):
         api.get_data_set_by_name('foo_bar')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/data-sets/foo_bar',
+            method='GET',
+            url='http://admin.api/data-sets/foo_bar',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
             })),
-            data=None,
+            data=mock.ANY,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -117,12 +125,13 @@ class TestAdminAPI(object):
         api.get_data_set_transforms('foo_bar')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/data-sets/foo_bar/transform',
+            method='GET',
+            url='http://admin.api/data-sets/foo_bar/transform',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -132,12 +141,13 @@ class TestAdminAPI(object):
         api.get_data_set_dashboard('foo_bar')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/data-sets/foo_bar/dashboard',
+            method='GET',
+            url='http://admin.api/data-sets/foo_bar/dashboard',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -147,13 +157,14 @@ class TestAdminAPI(object):
         api.get_transform_types()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/transform-type',
+            method='GET',
+            url='http://admin.api/transform-type',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -234,13 +245,14 @@ class TestAdminAPI(object):
         api.list_dashboards()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/dashboards',
+            method='GET',
+            url='http://admin.api/dashboards',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -250,13 +262,14 @@ class TestAdminAPI(object):
         api.get_dashboard('uuid')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/dashboard/uuid',
+            method='GET',
+            url='http://admin.api/dashboard/uuid',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -266,13 +279,14 @@ class TestAdminAPI(object):
         api.get_dashboards()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/dashboard',
+            method='GET',
+            url='http://admin.api/dashboard',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -282,13 +296,14 @@ class TestAdminAPI(object):
         api.get_module('uuid')
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/module/uuid',
+            method='GET',
+            url='http://admin.api/module/uuid',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -298,14 +313,15 @@ class TestAdminAPI(object):
         api.get_dashboard_by_tx_id('dft-some-service')
 
         mock_request.assert_called_with(
-            'GET',
-            "http://admin.api/transactions-explorer-service/"
+            method='GET',
+            url="http://admin.api/transactions-explorer-service/"
             "dft-some-service/dashboard",
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -315,13 +331,14 @@ class TestAdminAPI(object):
         api.list_organisations()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/organisation/node',
+            method='GET',
+            url='http://admin.api/organisation/node',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -331,13 +348,14 @@ class TestAdminAPI(object):
         api.list_organisations({'type': ['department', 'agency']})
 
         mock_request.assert_called_with(
-            'GET',
-            'http://admin.api/organisation/node?type=department&type=agency',
+            method='GET',
+            url='http://admin.api/organisation/node',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params={'type': ['department', 'agency']},
         )
 
     @mock.patch('requests.request')
@@ -347,13 +365,14 @@ class TestAdminAPI(object):
         api.delete_dashboard('uuid')
 
         mock_request.assert_called_with(
-            'DELETE',
-            'http://admin.api/dashboard/uuid',
+            method='DELETE',
+            url='http://admin.api/dashboard/uuid',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
                 'Authorization': 'Bearer token'
             })),
             data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -365,12 +384,13 @@ class TestAdminAPI(object):
         client._post('', 'x' * 3000)
 
         mock_request.assert_called_with(
-            mock.ANY,
-            mock.ANY,
+            method=mock.ANY,
+            url=mock.ANY,
             headers=match_equality(is_not(has_entries({
                 'Content-Encoding': 'gzip'
             }))),
-            data=mock.ANY
+            data=mock.ANY,
+            params=None,
         )
 
         unzipped_bytes = mock_request.call_args[1]['data']
@@ -390,10 +410,11 @@ class TestAdminAPI(object):
         client.reauth('foo')
 
         mock_request.assert_called_with(
-            'POST',
-            'http://meta.api.com/auth/gds/api/users/foo/reauth',
+            method='POST',
+            url='http://meta.api.com/auth/gds/api/users/foo/reauth',
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
             })),
-            data=None
+            data=None,
+            params=None,
         )

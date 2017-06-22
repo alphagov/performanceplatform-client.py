@@ -47,8 +47,8 @@ class DataSet(BaseClient):
 
         self._token = token
 
-    def get(self, query_parameters={}):
-        return self._get(self._to_query_string(query_parameters))
+    def get(self, query_parameters=None):
+        return self._get(path="", params=query_parameters)
 
     def post(self, records, chunk_size=0):
         return self._post('', records, chunk_size=chunk_size)

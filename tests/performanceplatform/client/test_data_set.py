@@ -1,17 +1,15 @@
 from datetime import datetime
 
 import mock
-import multiprocessing  # quieten the test worker
-from nose.tools import eq_, assert_raises
-from nose import SkipTest
-from requests import Response, HTTPError
 from hamcrest import has_entries, match_equality
+from nose import SkipTest
+from nose.tools import eq_, assert_raises
+from requests import Response, HTTPError
 
 from performanceplatform.client.data_set import DataSet
 
 
 class TestDataSet(object):
-
     def test_from_target(self):
         data_set = DataSet('foo', 'bar')
         eq_(data_set.base_url, 'foo')
@@ -83,10 +81,12 @@ class TestDataSet(object):
         data_set = DataSet('some-url', 'some-token')
         data_set.empty_data_set()
         mock_request.assert_called_with(
-            'PUT',
-            'some-url',
+            method='PUT',
+            url='some-url',
             headers=mock.ANY,
-            data='[]')
+            data='[]',
+            params=None,
+        )
 
     @mock.patch('requests.request')
     def test_post_data_to_data_set(self, mock_request):
@@ -96,10 +96,11 @@ class TestDataSet(object):
         data_set.post({'key': 'value'})
 
         mock_request.assert_called_with(
-            'POST',
-            'foo',
+            method='POST',
+            url='foo',
             headers=mock.ANY,
-            data='{"key": "value"}'
+            data='{"key": "value"}',
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -110,10 +111,11 @@ class TestDataSet(object):
         data_set.post({'key': datetime(2012, 12, 12)})
 
         mock_request.assert_called_with(
-            'POST',
-            mock.ANY,
+            method='POST',
+            url=mock.ANY,
             headers=mock.ANY,
-            data='{"key": "2012-12-12T00:00:00+00:00"}'
+            data='{"key": "2012-12-12T00:00:00+00:00"}',
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -127,12 +129,13 @@ class TestDataSet(object):
         data_set.get()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://dropthebase.com/my-buff-data-set',
+            method='GET',
+            url='http://dropthebase.com/my-buff-data-set',
             headers=match_equality(has_entries({
                 'Accept': 'application/json',
             })),
-            data=mock.ANY
+            data=None,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -148,10 +151,11 @@ class TestDataSet(object):
         data_set.get()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://dropthebase.com/data/famous-knights/dragons-killed',
+            method='GET',
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers=mock.ANY,
             data=mock.ANY,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -169,10 +173,11 @@ class TestDataSet(object):
         data_set.get()
 
         mock_request.assert_called_with(
-            'GET',
-            'http://dropthebase.com/data/famous-knights/dragons-killed',
+            method='GET',
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers=mock.ANY,
             data=mock.ANY,
+            params=None,
         )
 
     @mock.patch('requests.request')
@@ -189,18 +194,19 @@ class TestDataSet(object):
         data_set.post({'key': datetime(2012, 12, 12)})
 
         mock_request.assert_called_with(
-            'POST',
-            'http://dropthebase.com/data/famous-knights/dragons-killed',
+            method='POST',
+            url='http://dropthebase.com/data/famous-knights/dragons-killed',
             headers=match_equality(has_entries({
                 'Authorization': 'Bearer token',
                 'Content-Type': 'application/json',
             })),
-            data='{"key": "2012-12-12T00:00:00+00:00"}'
+            data='{"key": "2012-12-12T00:00:00+00:00"}',
+            params=None,
         )
 
     @mock.patch('requests.request')
     def test_post_to_data_set_by_group_and_type_without_bearer_token(
-        self, mock_request
+            self, mock_request
     ):
         """ Need to fix the behaviour here """
         raise SkipTest
@@ -323,21 +329,6 @@ class TestDataSet(object):
             HTTPError, data_set.post, [{'key': 'foo'}])
         eq_(mock_request.call_count, 1)
 
-    def test_to_query_string_with_empty(self):
-        data_set = DataSet('', None)
-        eq_(data_set._to_query_string({}), '')
-
-    def test_to_query_string_with_params(self):
-        data_set = DataSet('', None)
-        eq_(data_set._to_query_string({
-            'foo': 'bar',
-            'bar': 'foo'}), '?foo=bar&bar=foo')
-
-    def test_to_query_string_with_param_list(self):
-        data_set = DataSet('', None)
-        eq_(data_set._to_query_string({
-            'foo': ['bar1', 'bar2']}), '?foo=bar1&foo=bar2')
-
     @mock.patch('requests.request')
     def test_get_data_set_with_params(self, mock_request):
         mock_request.__name__ = 'request'
@@ -352,9 +343,10 @@ class TestDataSet(object):
         data_set.get(query_parameters={'foo': 'bar'})
 
         mock_request.assert_called_with(
-            'GET',
-            'http://dropthebase.com/data/'
-            'famous-knights/dragons-killed?foo=bar',
+            method='GET',
+            url='http://dropthebase.com/data/'
+                'famous-knights/dragons-killed',
             headers=mock.ANY,
             data=mock.ANY,
+            params={'foo': 'bar'}
         )
